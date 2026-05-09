@@ -1,0 +1,36 @@
+{
+  "summary": {
+    "agent_a": "mcts:1",
+    "agent_b": "random",
+    "games": 1,
+    "agent_a_wins": 1,
+    "agent_b_wins": 0,
+    "draws": 0,
+    "agent_a_win_rate": 1.0,
+    "agent_b_win_rate": 0.0,
+    "draw_rate": 0.0,
+    "x_win_rate": 1.0,
+    "o_win_rate": 0.0,
+    "avg_turns": 53,
+    "avg_forfeits": 0,
+    "avg_redirects": 0
+  },
+  "games": [
+    {
+      "game_index": 0,
+      "x_agent": "mcts:1",
+      "o_agent": "random",
+      "winner": "X",
+      "winner_agent": "mcts:1",
+      "turns": 53,
+      "forfeits": 0,
+      "redirects": 0,
+      "agent_a_reward": 1.0,
+      "agent_b_reward": -1.0,
+      "agent_a_cumulative_reward": 1.0,
+      "agent_b_cumulative_reward": -1.0,
+      "agent_a_rolling_reward": 1.0,
+      "agent_b_rolling_reward": -1.0
+    }
+  ]
+}

@@ -2,7 +2,7 @@ import os
 import tempfile
 import unittest
 
-from agents import HeuristicAgent, QTableAgent, RandomAgent
+from agents import HeuristicAgent, MCTSAgent, QTableAgent, RandomAgent
 from agents import make_agent
 from super_tictactoe import X, SuperTicTacToeEnv
 from evaluate_agents import save_csv, save_html, save_json
@@ -40,6 +40,17 @@ class MatchTests(unittest.TestCase):
     def test_make_agent_supports_heuristic(self) -> None:
         agent = make_agent("heuristic", seed=1)
         self.assertEqual(agent.name, "heuristic")
+
+    def test_make_agent_supports_mcts_candidates(self) -> None:
+        agent = make_agent("mcts:2:4", seed=1)
+        self.assertEqual(agent.name, "mcts:2")
+        self.assertEqual(agent.max_candidates, 4)
+
+    def test_mcts_returns_legal_action(self) -> None:
+        env = SuperTicTacToeEnv(stochastic=False)
+        agent = MCTSAgent(simulations=3, rollout_depth=2, seed=1)
+        action = agent.select_action(env)
+        self.assertIn(action, env.available_actions())
 
     def test_reports_are_written(self) -> None:
         summary, results = evaluate_pair(

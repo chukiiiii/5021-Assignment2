@@ -145,6 +145,103 @@ One caveat is that these are still smoke-test-sized evaluations. Final reporting
 
 ## 6. Next Steps
 
+## 6. MCTS and Reward Tracking
+
+The next advanced agent is MCTS, implemented as `mcts` or `mcts:N` through the shared agent interface.
+
+MCTS design:
+
+- The root action is the intended move selected by the player.
+- Stochastic placement is handled by sampling the real environment transition during simulations.
+- Rollouts default to random actions for speed.
+- The final value is from the root player's perspective:
+  - win: `+1`
+  - loss: `-1`
+  - draw: `0`
+  - depth-limited non-terminal state: bounded heuristic evaluation
+
+This is a correctness-first MCTS implementation. Early smoke testing showed that larger settings, such as `mcts:20` over 20 stochastic games, can be slow when rollouts repeatedly call the heuristic policy. The default rollout depth was therefore reduced and the default rollout policy was changed to random actions for practical smoke testing.
+
+A tiny command-line smoke test completed successfully:
+
+```bash
+python3 evaluate_agents.py --agent-a mcts:1 --agent-b random --games 1 --seed 61 --deterministic --json-output eval_mcts1_random_smoke.json --csv-output eval_mcts1_random_smoke.csv --html-output eval_mcts1_random_smoke.html
+```
+
+Observed result:
+
+| Agent | Opponent | Eval env | Games | Win rate | Avg reward | Avg turns |
+| --- | --- | --- | ---: | ---: | ---: | ---: |
+| MCTS-1 | Random | Deterministic | 1 | 1.00 | 1.00 | 53.00 |
+
+This one-game result only verifies the MCTS command path and reporting outputs. It is not a statistically meaningful strength estimate.
+
+The longer `mcts:20` stochastic evaluation eventually completed:
+
+```bash
+python3 evaluate_agents.py --agent-a mcts:20 --agent-b random --games 20 --seed 51 --json-output eval_mcts20_random.json --csv-output eval_mcts20_random.csv --html-output eval_mcts20_random.html
+```
+
+Observed result:
+
+| Agent | Opponent | Eval env | Games | Win rate | Avg reward | Avg turns | Avg forfeits | Avg redirects |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| MCTS-20 | Random | Stochastic | 20 | 0.40 | -0.20 | 57.60 | 10.80 | 17.30 |
+
+This result is weaker than expected. The likely reason is that MCTS is currently using sampled stochastic transitions and a shallow, speed-oriented rollout policy. With only 20 simulations per move, the search is noisy and does not yet reliably outperform random play. The experiment is still useful because it confirms that the MCTS pipeline, stochastic simulation, reward output, and HTML/CSV/JSON reporting all work end-to-end.
+
+### MCTS Optimization
+
+The first MCTS version expanded actions almost uniformly from the full legal action set. This was inefficient because the board can have up to 96 legal actions, so a small simulation budget was spent mostly on poor or irrelevant moves. It also used root-player value at every node without explicitly accounting for the opponent's adversarial choices.
+
+I optimized MCTS in three ways:
+
+1. Candidate pruning:
+   - Each node now ranks legal actions with a fast tactical prior.
+   - MCTS expands only the top candidate actions, for example `mcts:20:6` means 20 simulations and top 6 candidate actions.
+2. Adversarial tree selection:
+   - Root-player nodes maximize root value.
+   - Opponent nodes minimize root value.
+3. Prior-guided selection:
+   - The tactical prior is included in UCB-style tree selection and final root action selection.
+   - This prevents low-simulation MCTS from drifting too far from strong tactical moves.
+
+Optimized evaluation results:
+
+| Agent | Opponent | Eval env | Games | Win rate | Avg reward | Avg turns | Avg forfeits | Avg redirects |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| MCTS-20 top12 | Random | Stochastic | 20 | 1.00 | 1.00 | 15.80 | 1.70 | 6.55 |
+| MCTS-20 top6 | Random | Stochastic | 20 | 1.00 | 1.00 | 16.00 | 2.05 | 6.45 |
+| MCTS-20 top6 + prior | Random | Stochastic | 20 | 1.00 | 1.00 | 12.00 | 1.30 | 4.65 |
+| MCTS-20 top6 + prior | Heuristic | Stochastic | 10 | 0.40 | -0.20 | 10.70 | 1.10 | 4.10 |
+| MCTS-50 top6 + prior | Heuristic | Stochastic | 10 | 0.60 | 0.20 | 10.30 | 0.80 | 4.40 |
+
+The optimized MCTS clearly improves over the first version. Against random, it reaches 100% win rate in these small evaluations and finishes games much faster. Against the stronger heuristic baseline, `mcts:50:6` wins 6 out of 10 games, suggesting that additional simulations can add value beyond the hand-designed heuristic.
+
+These results are still small-sample experiments. Final evaluation should use more seeds and more games, but the direction is promising.
+
+Reward tracking was also added:
+
+- `evaluate_agents.py` now records per-game reward, cumulative reward, and rolling reward from agent A's perspective.
+- The HTML match report includes a cumulative reward line chart.
+- `train_q_learning.py` can now save reward history using `--history-csv` and `--history-html`.
+
+Example training reward command:
+
+```bash
+python3 train_q_learning.py --episodes 60 --eval-games 20 --seed 17 --output q_table_reward_smoke.json --history-csv q_reward_history.csv --history-html q_reward_history.html
+```
+
+Observed Q-learning reward smoke test:
+
+| Training run | Episodes | X win rate | O win rate | Eval learner win rate | Eval random win rate | Avg eval turns |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Q reward smoke | 60 | 0.483 | 0.517 | 0.500 | 0.500 | 55.50 |
+
+The reward curve is saved in `q_reward_history.html`.
+
+## 7. Next Steps
+
 The next recommended steps are:
 
 1. Run longer heuristic-vs-random and heuristic-vs-Q evaluations across multiple seeds.
@@ -152,12 +249,12 @@ The next recommended steps are:
 3. Add a neural method such as DQN or PPO.
 4. Optionally generate SFT data from heuristic or MCTS games, pretrain a policy network, then fine-tune with RL.
 
-## 7. Limitations
+## 8. Limitations
 
 The current implementation still has several limitations:
 
 - The column win interpretation should be confirmed against the course expectation.
 - Tabular Q-learning is too small for the full game.
 - The heuristic is hand-designed and may overfit the current interpretation of the rules.
+- MCTS is currently correctness-oriented and can be slow at higher simulation counts.
 - No neural network method has been trained yet.
-- No MCTS has been implemented yet.

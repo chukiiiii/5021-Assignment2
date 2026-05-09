@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import random
 from typing import Protocol
 
@@ -193,6 +194,231 @@ class HeuristicAgent:
         return total
 
 
+class MCTSNode:
+    def __init__(
+        self,
+        env: SuperTicTacToeEnv,
+        action_scores: list[tuple[int, float]],
+    ) -> None:
+        self.state_id = (env.current_player, env.state())
+        self.current_player = env.current_player
+        self.untried_actions = [action for action, _ in action_scores]
+        self.action_priors = {action: score for action, score in action_scores}
+        self.children: dict[int, list[MCTSNode]] = {}
+        self.visits = 0
+        self.value = 0.0
+
+
+def _clone_env(env: SuperTicTacToeEnv, seed: int) -> SuperTicTacToeEnv:
+    clone = SuperTicTacToeEnv(seed=seed, stochastic=env.stochastic)
+    clone.board = [row[:] for row in env.board]
+    clone.current_player = env.current_player
+    clone.done = env.done
+    clone.winner = env.winner
+    clone.last_info = env.last_info
+    return clone
+
+
+def _bounded_eval(env: SuperTicTacToeEnv, root_player: int) -> float:
+    if env.winner == root_player:
+        return 1.0
+    if env.winner == -root_player:
+        return -1.0
+    if env.winner is None and env.done:
+        return 0.0
+    score = _board_score(env, root_player)
+    return max(-0.5, min(0.5, score / 8_000.0))
+
+
+class MCTSAgent:
+    """Monte Carlo tree search agent with sampled stochastic transitions."""
+
+    def __init__(
+        self,
+        simulations: int = 100,
+        exploration: float = 1.4,
+        rollout_depth: int = 10,
+        rollout_randomness: float = 1.0,
+        max_candidates: int = 12,
+        prior_weight: float = 0.25,
+        seed: int | None = None,
+        name: str | None = None,
+    ) -> None:
+        self.simulations = simulations
+        self.exploration = exploration
+        self.rollout_depth = rollout_depth
+        self.rollout_randomness = rollout_randomness
+        self.max_candidates = max_candidates
+        self.prior_weight = prior_weight
+        self.random = random.Random(seed)
+        self.rollout_heuristic = HeuristicAgent(seed=seed)
+        self.name = name or f"mcts:{simulations}"
+
+    def reset(self) -> None:
+        pass
+
+    def select_action(self, env: SuperTicTacToeEnv) -> int:
+        actions = env.available_actions()
+        if len(actions) == 1:
+            return actions[0]
+
+        root = MCTSNode(env, self._candidate_action_scores(env))
+        root_player = env.current_player
+
+        for _ in range(self.simulations):
+            sim_env = _clone_env(env, self.random.randrange(1_000_000_000))
+            path = [root]
+            node = root
+
+            while not sim_env.done and not node.untried_actions:
+                action = self._select_tree_action(node, root_player)
+                sim_env.step(action)
+                node = self._child_for_state(node, action, sim_env)
+                path.append(node)
+
+            if not sim_env.done and node.untried_actions:
+                action = node.untried_actions.pop(0)
+                sim_env.step(action)
+                node = self._child_for_state(node, action, sim_env)
+                path.append(node)
+
+            value = self._rollout(sim_env, root_player)
+            for visited in path:
+                visited.visits += 1
+                visited.value += value
+
+        return self._best_root_action(root, actions)
+
+    def _candidate_action_scores(self, env: SuperTicTacToeEnv) -> list[tuple[int, float]]:
+        actions = env.available_actions()
+        player = env.current_player
+        scored = [
+            (self._fast_action_score(env, action, player), self.random.random(), action)
+            for action in actions
+        ]
+        scored.sort(reverse=True)
+        limit = min(self.max_candidates, len(scored))
+        return [(action, score) for score, _, action in scored[:limit]]
+
+    def _fast_action_score(
+        self,
+        env: SuperTicTacToeEnv,
+        action: int,
+        player: int,
+    ) -> float:
+        opponent = -player
+        requested = env.action_to_cell(action)
+        total = 0.0
+
+        for target, probability in _placement_outcomes(env, action):
+            if target is None:
+                total -= 25.0 * probability
+                continue
+
+            block_bonus = 0.0
+            for line in LINES_BY_CELL[target]:
+                values = [env.board[row][col] for row, col in line]
+                if values.count(opponent) == len(line) - 1 and values.count(EMPTY) == 1:
+                    block_bonus += 4_000.0
+
+            row, col = target
+            env.board[row][col] = player
+            winner = env.check_winner()
+            if winner == player:
+                outcome_score = 1_000_000.0
+            else:
+                outcome_score = block_bonus + _cell_shape_score(env, player, target)
+                for line in LINES_BY_CELL[target]:
+                    values = [env.board[line_row][line_col] for line_row, line_col in line]
+                    player_count = values.count(player)
+                    opponent_count = values.count(opponent)
+                    empty_count = values.count(EMPTY)
+                    if opponent_count == 0:
+                        outcome_score += _line_score(player_count, empty_count, len(line))
+                    if player_count == 0:
+                        outcome_score -= 1.1 * _line_score(opponent_count, empty_count, len(line))
+                if target == requested:
+                    outcome_score += 2.0
+            env.board[row][col] = EMPTY
+            total += probability * outcome_score
+
+        return total
+
+    def _select_tree_action(self, node: MCTSNode, root_player: int) -> int:
+        log_parent = math.log(max(1, node.visits))
+        best_score = -float("inf")
+        best_actions: list[int] = []
+        for action, children in node.children.items():
+            visits = sum(child.visits for child in children)
+            value = sum(child.value for child in children)
+            if visits == 0:
+                score = float("inf")
+            else:
+                exploit = value / visits
+                if node.current_player != root_player:
+                    exploit = -exploit
+                explore = self.exploration * math.sqrt(log_parent / visits)
+                prior = math.tanh(node.action_priors.get(action, 0.0) / 5_000.0)
+                score = exploit + explore + self.prior_weight * prior
+            if score > best_score:
+                best_score = score
+                best_actions = [action]
+            elif score == best_score:
+                best_actions.append(action)
+        return self.random.choice(best_actions)
+
+    def _child_for_state(
+        self,
+        node: MCTSNode,
+        action: int,
+        env: SuperTicTacToeEnv,
+    ) -> MCTSNode:
+        state_id = (env.current_player, env.state())
+        children = node.children.setdefault(action, [])
+        for child in children:
+            if child.state_id == state_id:
+                return child
+        child = MCTSNode(env, self._candidate_action_scores(env))
+        children.append(child)
+        return child
+
+    def _rollout(self, env: SuperTicTacToeEnv, root_player: int) -> float:
+        depth = 0
+        while not env.done and depth < self.rollout_depth:
+            actions = env.available_actions()
+            if self.random.random() < self.rollout_randomness:
+                action = self.random.choice(actions)
+            else:
+                action = self.rollout_heuristic.select_action(env)
+            env.step(action)
+            depth += 1
+        return _bounded_eval(env, root_player)
+
+    def _best_root_action(self, root: MCTSNode, fallback_actions: list[int]) -> int:
+        visited_actions = [
+            (
+                sum(child.value for child in children)
+                / max(1, sum(child.visits for child in children)),
+                sum(child.visits for child in children),
+                math.tanh(root.action_priors.get(action, 0.0) / 5_000.0),
+                action,
+            )
+            for action, children in root.children.items()
+        ]
+        if not visited_actions:
+            return self.random.choice(fallback_actions)
+        best_value = max(
+            value + self.prior_weight * prior
+            for value, _, prior, _ in visited_actions
+        )
+        best_actions = [
+            action
+            for value, _, prior, action in visited_actions
+            if value + self.prior_weight * prior == best_value
+        ]
+        return self.random.choice(best_actions)
+
+
 class HumanConsoleAgent:
     def __init__(self, name: str = "human") -> None:
         self.name = name
@@ -225,6 +451,7 @@ def make_agent(spec: str, seed: int | None = None) -> Agent:
     Supported specs:
     - `random`
     - `heuristic`
+    - `mcts`, `mcts:simulations`, or `mcts:simulations:max_candidates`
     - `qtable:path/to/q_table.json`
     - `human`
     """
@@ -232,6 +459,17 @@ def make_agent(spec: str, seed: int | None = None) -> Agent:
         return RandomAgent(seed=seed)
     if spec == "heuristic":
         return HeuristicAgent(seed=seed)
+    if spec == "mcts":
+        return MCTSAgent(seed=seed)
+    if spec.startswith("mcts:"):
+        parts = spec.split(":")
+        simulations = int(parts[1])
+        max_candidates = int(parts[2]) if len(parts) >= 3 else 12
+        return MCTSAgent(
+            simulations=simulations,
+            max_candidates=max_candidates,
+            seed=seed,
+        )
     if spec == "human":
         return HumanConsoleAgent()
     if spec.startswith("qtable:"):

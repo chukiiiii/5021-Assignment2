@@ -23,6 +23,8 @@ def bar(value: float, width: int = 28) -> str:
 
 
 def print_summary(summary: MatchSummary) -> None:
+    agent_a_reward = summary.agent_a_win_rate - summary.agent_b_win_rate
+    agent_b_reward = summary.agent_b_win_rate - summary.agent_a_win_rate
     print("Match summary")
     print(f"  {summary.agent_a} vs {summary.agent_b}")
     print(f"  games: {summary.games}")
@@ -37,9 +39,54 @@ def print_summary(summary: MatchSummary) -> None:
     print(f"  draws: {summary.draws} ({summary.draw_rate:.2%}) [{bar(summary.draw_rate)}]")
     print(f"  X win rate: {summary.x_win_rate:.2%}")
     print(f"  O win rate: {summary.o_win_rate:.2%}")
+    print(f"  {summary.agent_a} avg reward: {agent_a_reward:.3f}")
+    print(f"  {summary.agent_b} avg reward: {agent_b_reward:.3f}")
     print(f"  avg turns: {summary.avg_turns:.2f}")
     print(f"  avg forfeits: {summary.avg_forfeits:.2f}")
     print(f"  avg redirects: {summary.avg_redirects:.2f}")
+
+
+def add_reward_columns(
+    rows: list[dict[str, object]],
+    summary: MatchSummary,
+    window: int = 20,
+) -> list[dict[str, object]]:
+    enriched = []
+    cumulative_a = 0.0
+    cumulative_b = 0.0
+    recent_a: list[float] = []
+    recent_b: list[float] = []
+
+    for row in rows:
+        winner_agent = row["winner_agent"]
+        if winner_agent == summary.agent_a:
+            reward_a = 1.0
+            reward_b = -1.0
+        elif winner_agent == summary.agent_b:
+            reward_a = -1.0
+            reward_b = 1.0
+        else:
+            reward_a = 0.0
+            reward_b = 0.0
+
+        cumulative_a += reward_a
+        cumulative_b += reward_b
+        recent_a.append(reward_a)
+        recent_b.append(reward_b)
+        if len(recent_a) > window:
+            recent_a.pop(0)
+            recent_b.pop(0)
+
+        enriched_row = dict(row)
+        enriched_row["agent_a_reward"] = reward_a
+        enriched_row["agent_b_reward"] = reward_b
+        enriched_row["agent_a_cumulative_reward"] = cumulative_a
+        enriched_row["agent_b_cumulative_reward"] = cumulative_b
+        enriched_row["agent_a_rolling_reward"] = sum(recent_a) / len(recent_a)
+        enriched_row["agent_b_rolling_reward"] = sum(recent_b) / len(recent_b)
+        enriched.append(enriched_row)
+
+    return enriched
 
 
 def save_json(path: str, summary: MatchSummary, results: list[dict[str, object]]) -> None:
@@ -58,6 +105,12 @@ def save_csv(path: str, rows: list[dict[str, object]]) -> None:
         "turns",
         "forfeits",
         "redirects",
+        "agent_a_reward",
+        "agent_b_reward",
+        "agent_a_cumulative_reward",
+        "agent_b_cumulative_reward",
+        "agent_a_rolling_reward",
+        "agent_b_rolling_reward",
     ]
     with open(path, "w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
@@ -66,6 +119,10 @@ def save_csv(path: str, rows: list[dict[str, object]]) -> None:
 
 
 def save_html(path: str, summary: MatchSummary, rows: list[dict[str, object]]) -> None:
+    if rows and "agent_a_cumulative_reward" not in rows[0]:
+        rows = add_reward_columns(rows, summary)
+    reward_values = [float(row["agent_a_cumulative_reward"]) for row in rows]
+    reward_chart = svg_line_chart(reward_values, width=760, height=220)
     game_rows = "\n".join(
         "<tr>"
         f"<td>{row['game_index']}</td>"
@@ -76,6 +133,8 @@ def save_html(path: str, summary: MatchSummary, rows: list[dict[str, object]]) -
         f"<td>{row['turns']}</td>"
         f"<td>{row['forfeits']}</td>"
         f"<td>{row['redirects']}</td>"
+        f"<td>{float(row['agent_a_reward']):.0f}</td>"
+        f"<td>{float(row['agent_a_cumulative_reward']):.0f}</td>"
         "</tr>"
         for row in rows
     )
@@ -107,6 +166,11 @@ def save_html(path: str, summary: MatchSummary, rows: list[dict[str, object]]) -
     table {{ border-collapse: collapse; width: 100%; margin-top: 24px; font-size: 14px; }}
     th, td {{ border-bottom: 1px solid #ddd; padding: 8px 10px; text-align: left; }}
     th {{ background: #f5f5f5; }}
+    .chart {{ margin-top: 24px; max-width: 780px; }}
+    svg {{ width: 100%; height: auto; border: 1px solid #ddd; background: #fff; }}
+    .axis {{ stroke: #bbb; stroke-width: 1; }}
+    .line {{ fill: none; stroke: #2aa7df; stroke-width: 3; }}
+    .caption {{ color: #666; font-size: 13px; }}
   </style>
 </head>
 <body>
@@ -114,9 +178,14 @@ def save_html(path: str, summary: MatchSummary, rows: list[dict[str, object]]) -
   <p class="subtle">{summary.agent_a} vs {summary.agent_b}, {summary.games} games</p>
   {metric_blocks}
   <p>Average turns: {summary.avg_turns:.2f}. Average forfeits: {summary.avg_forfeits:.2f}. Average redirects: {summary.avg_redirects:.2f}.</p>
+  <div class="chart">
+    <h2>{summary.agent_a} cumulative reward</h2>
+    {reward_chart}
+    <p class="caption">Each game gives +1 for a win, -1 for a loss, and 0 for a draw from {summary.agent_a}'s perspective.</p>
+  </div>
   <table>
     <thead>
-      <tr><th>Game</th><th>X Agent</th><th>O Agent</th><th>Winner</th><th>Winner Agent</th><th>Turns</th><th>Forfeits</th><th>Redirects</th></tr>
+      <tr><th>Game</th><th>X Agent</th><th>O Agent</th><th>Winner</th><th>Winner Agent</th><th>Turns</th><th>Forfeits</th><th>Redirects</th><th>A Reward</th><th>A Cumulative</th></tr>
     </thead>
     <tbody>{game_rows}</tbody>
   </table>
@@ -126,10 +195,41 @@ def save_html(path: str, summary: MatchSummary, rows: list[dict[str, object]]) -
     Path(path).write_text(html, encoding="utf-8")
 
 
+def svg_line_chart(values: list[float], width: int, height: int) -> str:
+    if not values:
+        return f"<svg viewBox='0 0 {width} {height}'></svg>"
+
+    pad = 28
+    min_value = min(0.0, min(values))
+    max_value = max(0.0, max(values))
+    if min_value == max_value:
+        min_value -= 1.0
+        max_value += 1.0
+
+    def point(index: int, value: float) -> tuple[float, float]:
+        if len(values) == 1:
+            x = width / 2
+        else:
+            x = pad + index * (width - 2 * pad) / (len(values) - 1)
+        y = height - pad - (value - min_value) * (height - 2 * pad) / (max_value - min_value)
+        return x, y
+
+    points = " ".join(f"{x:.1f},{y:.1f}" for x, y in (point(i, v) for i, v in enumerate(values)))
+    zero_y = point(0, 0.0)[1]
+    return (
+        f"<svg viewBox='0 0 {width} {height}' role='img'>"
+        f"<line class='axis' x1='{pad}' y1='{zero_y:.1f}' x2='{width - pad}' y2='{zero_y:.1f}' />"
+        f"<polyline class='line' points='{points}' />"
+        f"<text x='{pad}' y='18'>max {max_value:.0f}</text>"
+        f"<text x='{pad}' y='{height - 8}'>min {min_value:.0f}</text>"
+        "</svg>"
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--agent-a", default="random", help="random | heuristic | qtable:path")
-    parser.add_argument("--agent-b", default="random", help="random | heuristic | qtable:path")
+    parser.add_argument("--agent-a", default="random", help="random | heuristic | mcts:N | qtable:path")
+    parser.add_argument("--agent-b", default="random", help="random | heuristic | mcts:N | qtable:path")
     parser.add_argument("--games", type=int, default=100)
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--deterministic", action="store_true")
@@ -137,11 +237,21 @@ def main() -> None:
     parser.add_argument("--json-output")
     parser.add_argument("--csv-output")
     parser.add_argument("--html-output")
+    parser.add_argument("--progress-every", type=int, default=0)
     args = parser.parse_args()
 
     agent_a = make_agent(args.agent_a, seed=args.seed)
     agent_b = make_agent(args.agent_b, seed=args.seed + 1)
     disambiguate_names(agent_a, agent_b)
+    def progress(done_games: int, result: object) -> None:
+        if args.progress_every and done_games % args.progress_every == 0:
+            print(
+                f"progress: {done_games}/{args.games} games, "
+                f"last winner={result.winner_agent or result.winner}, "
+                f"turns={result.turns}",
+                flush=True,
+            )
+
     summary, results = evaluate_pair(
         agent_a=agent_a,
         agent_b=agent_b,
@@ -149,8 +259,9 @@ def main() -> None:
         seed=args.seed,
         stochastic=not args.deterministic,
         alternate=not args.no_alternate,
+        progress_callback=progress if args.progress_every else None,
     )
-    rows = results_dict(results)
+    rows = add_reward_columns(results_dict(results), summary)
     print_summary(summary)
 
     if args.json_output:

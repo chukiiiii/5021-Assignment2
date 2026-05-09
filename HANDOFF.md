@@ -239,3 +239,53 @@ python3 play_game.py --x human --o heuristic
 - Next best step:
   - Implement MCTS using `heuristic` as rollout policy.
   - Alternatively implement DQN/PPO using the existing evaluator and `report.md` structure.
+
+## 2026-05-09 MCTS and Reward Tracking
+
+- Added `MCTSAgent` in `agents.py`.
+- CLI specs now include:
+  - `mcts`
+  - `mcts:N`, where `N` is the number of simulations per move.
+- MCTS implementation details:
+  - Uses the same `select_action(env)` interface as other agents.
+  - Handles stochastic move placement by sampling the real environment transition inside simulations.
+  - Uses rollout simulation and a bounded board evaluation when depth-limited.
+  - Returns values from the root player's perspective.
+- Reward tracking added:
+  - `evaluate_agents.py` adds per-game reward, cumulative reward, and rolling reward from agent A's perspective.
+  - HTML evaluation reports now include a cumulative reward chart.
+  - `train_q_learning.py` supports `--history-csv` and `--history-html`.
+- Successful verification:
+  - `python3 -m unittest -v`: passed, 13/13 after MCTS was added.
+  - `python3 train_q_learning.py --episodes 60 --eval-games 20 --seed 17 --output q_table_reward_smoke.json --history-csv q_reward_history.csv --history-html q_reward_history.html`: passed.
+  - `python3 evaluate_agents.py --agent-a mcts:1 --agent-b random --games 1 --seed 61 --deterministic --json-output eval_mcts1_random_smoke.json --csv-output eval_mcts1_random_smoke.csv --html-output eval_mcts1_random_smoke.html`: passed.
+- Important performance observation:
+  - Started `python3 evaluate_agents.py --agent-a mcts:20 --agent-b random --games 20 --seed 51 --json-output eval_mcts20_random.json --csv-output eval_mcts20_random.csv --html-output eval_mcts20_random.html`.
+  - This old-parameter run was very slow because each MCTS simulation performed repeated heuristic rollouts.
+  - It eventually completed: mcts:20 won 8/20 vs random, win rate 0.40, avg reward -0.20, avg turns 57.60, avg forfeits 10.80, avg redirects 17.30.
+  - Default `MCTSAgent` rollout depth was reduced afterward for future runs, and default rollouts were changed to random for speed.
+  - Next agent should prefer tiny smoke tests first, for example `mcts:3` or `mcts:5` over 2-5 games, then optimize before larger evaluations.
+
+## 2026-05-09 MCTS Optimization
+
+- Optimized MCTS after the first `mcts:20` result underperformed random.
+- Changes:
+  - Candidate pruning with a fast tactical prior.
+  - Spec format now supports `mcts:simulations:max_candidates`, for example `mcts:20:6`.
+  - Tree selection is now adversarial: root-player nodes maximize root value, opponent nodes minimize root value.
+  - Prior-guided UCB/final root action selection helps low-simulation MCTS keep strong tactical moves.
+  - `evaluate_agents.py` now supports `--progress-every N`.
+- Verification:
+  - `python3 -m unittest -v`: passed, 14/14.
+- Results:
+  - `python3 evaluate_agents.py --agent-a mcts:20 --agent-b random --games 20 --seed 71 --progress-every 1 --json-output eval_mcts20_random_optimized.json --csv-output eval_mcts20_random_optimized.csv --html-output eval_mcts20_random_optimized.html`
+    - mcts:20 won 20/20, avg reward 1.00, avg turns 15.80.
+  - `python3 evaluate_agents.py --agent-a mcts:20:6 --agent-b random --games 20 --seed 82 --progress-every 5 --json-output eval_mcts20c6_random_prior.json --csv-output eval_mcts20c6_random_prior.csv --html-output eval_mcts20c6_random_prior.html`
+    - mcts:20:6 won 20/20, avg reward 1.00, avg turns 12.00.
+  - `python3 evaluate_agents.py --agent-a mcts:20:6 --agent-b heuristic --games 10 --seed 83 --progress-every 1 --json-output eval_mcts20c6_heuristic_prior.json --csv-output eval_mcts20c6_heuristic_prior.csv --html-output eval_mcts20c6_heuristic_prior.html`
+    - mcts:20:6 won 4/10 vs heuristic, avg reward -0.20.
+  - `python3 evaluate_agents.py --agent-a mcts:50:6 --agent-b heuristic --games 10 --seed 84 --progress-every 1 --json-output eval_mcts50c6_heuristic_prior.json --csv-output eval_mcts50c6_heuristic_prior.csv --html-output eval_mcts50c6_heuristic_prior.html`
+    - mcts:50:6 won 6/10 vs heuristic, avg reward 0.20.
+- Next best step:
+  - Run multi-seed evaluation for `heuristic`, `mcts:20:6`, and `mcts:50:6`.
+  - Then consider DQN/PPO, using MCTS or heuristic for SFT data generation.

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from statistics import mean
+from typing import Callable
 
 from agents import Agent
 from super_tictactoe import O, X, MoveInfo, SuperTicTacToeEnv, player_name
@@ -128,6 +129,7 @@ def evaluate_pair(
     seed: int = 7,
     stochastic: bool = True,
     alternate: bool = True,
+    progress_callback: Callable[[int, GameResult], None] | None = None,
 ) -> tuple[MatchSummary, list[GameResult]]:
     results: list[GameResult] = []
     agent_a_wins = 0
@@ -149,6 +151,8 @@ def evaluate_pair(
             record=False,
         )
         results.append(result)
+        if progress_callback is not None:
+            progress_callback(game_index + 1, result)
 
         if result.winner == "draw":
             draws += 1
