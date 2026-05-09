@@ -1,0 +1,3 @@
+game_index,x_agent,o_agent,winner,winner_agent,turns,forfeits,redirects,agent_a_reward,agent_b_reward,agent_a_cumulative_reward,agent_b_cumulative_reward,agent_a_rolling_reward,agent_b_rolling_reward
+0,dqn:results/checkpoints/dqn_stochastic_smoke.pt,random,X,dqn:results/checkpoints/dqn_stochastic_smoke.pt,23,2,9,1.0,-1.0,1.0,-1.0,1.0,-1.0
+1,random,dqn:results/checkpoints/dqn_stochastic_smoke.pt,O,dqn:results/checkpoints/dqn_stochastic_smoke.pt,46,8,14,1.0,-1.0,2.0,-2.0,1.0,-1.0

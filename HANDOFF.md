@@ -412,3 +412,34 @@ http://127.0.0.1:8765
   - `game_ui.py` now includes `dqn:results/checkpoints/dqn_stochastic_smoke.pt` and `dqn:results/checkpoints/dqn_smoke.pt` options.
 - Caveat:
   - These are short smoke tests. They prove the DQN training/evaluation loop works, but are not final statistically reliable results.
+
+## 2026-05-09 Directory Cleanup
+
+- Organized generated experiment artifacts into `results/`.
+- Current structure:
+  - `results/checkpoints/`
+    - Q-table JSON files.
+    - DQN `.pt` checkpoints.
+  - `results/history/`
+    - reward-history CSV/HTML files.
+  - `results/evaluations/`
+    - evaluation JSON/CSV/HTML reports.
+- Added `README.md` with common commands and project structure.
+- Added `results/README.md`.
+- Updated code and docs to reference moved result paths, for example:
+  - `qtable:results/checkpoints/q_table.json`
+  - `dqn:results/checkpoints/dqn_stochastic_smoke.pt`
+- Updated training defaults:
+  - `train_q_learning.py` default output is `results/checkpoints/q_table.json`.
+  - `train_dqn.py` default output is `results/checkpoints/dqn_checkpoint.pt`.
+- Save helpers now create parent directories automatically.
+- Added `.gitignore` for Python caches.
+- Note:
+  - Existing `__pycache__/` files were not removed because cache deletion was not approved.
+- UI note:
+  - Port `8765` was already occupied by an older server, so the refreshed UI was started at `http://127.0.0.1:8766`.
+  - The refreshed UI was verified to contain `qtable:results/checkpoints/q_table.json` and DQN checkpoint options under `results/checkpoints/`.
+- Smoke checks after moving files:
+  - `python3 -m unittest -v`: passed, 25/25.
+  - `python3 evaluate_agents.py --agent-a qtable:results/checkpoints/q_table_smoke.json --agent-b random --games 2 --seed 121 --deterministic`: passed.
+  - `python3 evaluate_agents.py --agent-a dqn:results/checkpoints/dqn_stochastic_smoke.pt --agent-b random --games 2 --seed 120 --json-output results/evaluations/eval_path_smoke.json --csv-output results/evaluations/eval_path_smoke.csv --html-output results/evaluations/eval_path_smoke.html`: passed.

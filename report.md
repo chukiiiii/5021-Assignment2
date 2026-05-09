@@ -335,10 +335,16 @@ Verification:
 
 The next recommended steps are:
 
-1. Run longer heuristic-vs-random and heuristic-vs-Q evaluations across multiple seeds.
-2. Add MCTS using the heuristic as the rollout policy.
-3. Add a neural method such as DQN or PPO.
+1. Run longer multi-seed evaluations for heuristic, MCTS, and DQN.
+2. Train DQN for more episodes and compare learning curves across seeds.
+3. Add PPO as a second neural RL method.
 4. Optionally generate SFT data from heuristic or MCTS games, pretrain a policy network, then fine-tune with RL.
+
+Experiment artifacts are now organized under `results/`:
+
+- `results/checkpoints/`
+- `results/history/`
+- `results/evaluations/`
 
 ## 9. Limitations
 
