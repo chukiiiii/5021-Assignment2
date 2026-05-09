@@ -43,7 +43,7 @@ The repository was empty when work started, so this handoff contains both the in
   - Dependency-free tabular Q-learning/self-play baseline.
   - Alternating players share one Q-table using canonical state from current player's perspective.
   - Uses a zero-sum update: future opponent value is subtracted.
-  - Can evaluate the learner against a random policy and save `q_table.json`.
+  - Can evaluate the learner against a random policy and save `results/checkpoints/q_table.json`.
 - `test_super_tictactoe.py`
   - Unit tests for board size, invalid cells, corner outside probability, horizontal/vertical/diagonal wins, and forfeited turn passing.
 - `agents.py`
@@ -54,9 +54,11 @@ The repository was empty when work started, so this handoff contains both the in
   - CLI for algorithm-vs-algorithm win-rate tests with terminal, JSON, CSV, and HTML output.
 - `play_game.py`
   - CLI for visual single-game replay and human-vs-agent play.
-- `q_table_smoke.json`
+- `game_ui.py`
+  - Local browser UI for human-vs-agent and agent-vs-agent interactive games.
+- `results/checkpoints/q_table_smoke.json`
   - Output from a 50-episode deterministic smoke run.
-- `q_table.json`
+- `results/checkpoints/q_table.json`
   - Output from a 200-episode stochastic smoke run.
 
 ## Completion Plan
@@ -129,8 +131,8 @@ The repository was empty when work started, so this handoff contains both the in
 
 - Tried:
   - `python3 -m unittest -v`
-  - `python3 train_q_learning.py --episodes 50 --eval-games 20 --deterministic --output q_table_smoke.json`
-  - `python3 train_q_learning.py --episodes 200 --eval-games 50 --output q_table.json`
+  - `python3 train_q_learning.py --episodes 50 --eval-games 20 --deterministic --output results/checkpoints/q_table_smoke.json`
+  - `python3 train_q_learning.py --episodes 200 --eval-games 50 --output results/checkpoints/q_table.json`
 - Result:
   - Unit tests: 7 tests passed.
   - Deterministic smoke training:
@@ -164,27 +166,39 @@ python3 -m unittest -v
 Run a quick deterministic training smoke test:
 
 ```bash
-python3 train_q_learning.py --episodes 50 --eval-games 20 --deterministic --output q_table_smoke.json
+python3 train_q_learning.py --episodes 50 --eval-games 20 --deterministic --output results/checkpoints/q_table_smoke.json
 ```
 
 Run a stochastic training smoke test:
 
 ```bash
-python3 train_q_learning.py --episodes 200 --eval-games 50 --output q_table.json
+python3 train_q_learning.py --episodes 200 --eval-games 50 --output results/checkpoints/q_table.json
 ```
 
 Evaluate two agents and save reports:
 
 ```bash
-python3 evaluate_agents.py --agent-a qtable:q_table.json --agent-b random --games 100 --json-output eval.json --csv-output eval.csv --html-output eval.html
+python3 evaluate_agents.py --agent-a qtable:results/checkpoints/q_table.json --agent-b random --games 100 --json-output results/evaluations/eval.json --csv-output results/evaluations/eval.csv --html-output results/evaluations/eval.html
 ```
 
 Play or display a single game:
 
 ```bash
-python3 play_game.py --x human --o qtable:q_table.json
+python3 play_game.py --x human --o qtable:results/checkpoints/q_table.json
 python3 play_game.py --x random --o random --quiet
 python3 play_game.py --x human --o heuristic
+```
+
+Start the browser UI:
+
+```bash
+python3 game_ui.py --host 127.0.0.1 --port 8765
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8765
 ```
 
 ## Suggested Next Steps
@@ -200,8 +214,8 @@ python3 play_game.py --x human --o heuristic
 ## Results
 
 - Unit test result: passed, 7/7.
-- Deterministic smoke training result: passed and saved `q_table_smoke.json`.
-- Stochastic smoke training result: passed and saved `q_table.json`.
+- Deterministic smoke training result: passed and saved `results/checkpoints/q_table_smoke.json`.
+- Stochastic smoke training result: passed and saved `results/checkpoints/q_table.json`.
 - Known failures: no runtime failures after implementation.
 - Known limitation: tabular Q-learning is too small for the full 96-cell game state space, so the baseline is mostly a correctness scaffold rather than a high-performing final agent.
 
@@ -216,7 +230,7 @@ python3 play_game.py --x human --o heuristic
 - Future PPO, MCTS, heuristic, or SFT policies should implement the same shape as `Agent.select_action(env)` in `agents.py`.
 - Verification run:
   - `python3 -m unittest -v`: passed, 10/10.
-  - `python3 evaluate_agents.py --agent-a random --agent-b random --games 10 --seed 11 --deterministic --json-output eval_random.json --csv-output eval_random.csv --html-output eval_random.html`: passed.
+  - `python3 evaluate_agents.py --agent-a random --agent-b random --games 10 --seed 11 --deterministic --json-output results/evaluations/eval_random.json --csv-output results/evaluations/eval_random.csv --html-output results/evaluations/eval_random.html`: passed.
   - `python3 play_game.py --x random --o random --seed 5 --deterministic --quiet`: passed.
 
 ## 2026-05-09 Progress
@@ -227,15 +241,15 @@ python3 play_game.py --x human --o heuristic
 - Added tests for heuristic immediate-win behavior and `make_agent("heuristic")`.
 - Verification:
   - `python3 -m unittest -v`: passed, 12/12.
-  - `python3 evaluate_agents.py --agent-a heuristic --agent-b random --games 100 --seed 21 --json-output eval_heuristic_random.json --csv-output eval_heuristic_random.csv --html-output eval_heuristic_random.html`: heuristic won 100/100, avg turns 11.70.
-  - `python3 evaluate_agents.py --agent-a heuristic --agent-b qtable:q_table.json --games 100 --seed 31 --json-output eval_heuristic_qtable.json --csv-output eval_heuristic_qtable.csv --html-output eval_heuristic_qtable.html`: heuristic won 100/100, avg turns 12.14.
+  - `python3 evaluate_agents.py --agent-a heuristic --agent-b random --games 100 --seed 21 --json-output results/evaluations/eval_heuristic_random.json --csv-output results/evaluations/eval_heuristic_random.csv --html-output results/evaluations/eval_heuristic_random.html`: heuristic won 100/100, avg turns 11.70.
+  - `python3 evaluate_agents.py --agent-a heuristic --agent-b qtable:results/checkpoints/q_table.json --games 100 --seed 31 --json-output results/evaluations/eval_heuristic_qtable.json --csv-output results/evaluations/eval_heuristic_qtable.csv --html-output results/evaluations/eval_heuristic_qtable.html`: heuristic won 100/100, avg turns 12.14.
 - Generated reports:
-  - `eval_heuristic_random.json`
-  - `eval_heuristic_random.csv`
-  - `eval_heuristic_random.html`
-  - `eval_heuristic_qtable.json`
-  - `eval_heuristic_qtable.csv`
-  - `eval_heuristic_qtable.html`
+  - `results/evaluations/eval_heuristic_random.json`
+  - `results/evaluations/eval_heuristic_random.csv`
+  - `results/evaluations/eval_heuristic_random.html`
+  - `results/evaluations/eval_heuristic_qtable.json`
+  - `results/evaluations/eval_heuristic_qtable.csv`
+  - `results/evaluations/eval_heuristic_qtable.html`
 - Next best step:
   - Implement MCTS using `heuristic` as rollout policy.
   - Alternatively implement DQN/PPO using the existing evaluator and `report.md` structure.
@@ -257,10 +271,10 @@ python3 play_game.py --x human --o heuristic
   - `train_q_learning.py` supports `--history-csv` and `--history-html`.
 - Successful verification:
   - `python3 -m unittest -v`: passed, 13/13 after MCTS was added.
-  - `python3 train_q_learning.py --episodes 60 --eval-games 20 --seed 17 --output q_table_reward_smoke.json --history-csv q_reward_history.csv --history-html q_reward_history.html`: passed.
-  - `python3 evaluate_agents.py --agent-a mcts:1 --agent-b random --games 1 --seed 61 --deterministic --json-output eval_mcts1_random_smoke.json --csv-output eval_mcts1_random_smoke.csv --html-output eval_mcts1_random_smoke.html`: passed.
+  - `python3 train_q_learning.py --episodes 60 --eval-games 20 --seed 17 --output results/checkpoints/q_table_reward_smoke.json --history-csv results/history/q_reward_history.csv --history-html results/history/q_reward_history.html`: passed.
+  - `python3 evaluate_agents.py --agent-a mcts:1 --agent-b random --games 1 --seed 61 --deterministic --json-output results/evaluations/eval_mcts1_random_smoke.json --csv-output results/evaluations/eval_mcts1_random_smoke.csv --html-output results/evaluations/eval_mcts1_random_smoke.html`: passed.
 - Important performance observation:
-  - Started `python3 evaluate_agents.py --agent-a mcts:20 --agent-b random --games 20 --seed 51 --json-output eval_mcts20_random.json --csv-output eval_mcts20_random.csv --html-output eval_mcts20_random.html`.
+  - Started `python3 evaluate_agents.py --agent-a mcts:20 --agent-b random --games 20 --seed 51 --json-output results/evaluations/eval_mcts20_random.json --csv-output results/evaluations/eval_mcts20_random.csv --html-output results/evaluations/eval_mcts20_random.html`.
   - This old-parameter run was very slow because each MCTS simulation performed repeated heuristic rollouts.
   - It eventually completed: mcts:20 won 8/20 vs random, win rate 0.40, avg reward -0.20, avg turns 57.60, avg forfeits 10.80, avg redirects 17.30.
   - Default `MCTSAgent` rollout depth was reduced afterward for future runs, and default rollouts were changed to random for speed.
@@ -278,14 +292,123 @@ python3 play_game.py --x human --o heuristic
 - Verification:
   - `python3 -m unittest -v`: passed, 14/14.
 - Results:
-  - `python3 evaluate_agents.py --agent-a mcts:20 --agent-b random --games 20 --seed 71 --progress-every 1 --json-output eval_mcts20_random_optimized.json --csv-output eval_mcts20_random_optimized.csv --html-output eval_mcts20_random_optimized.html`
+  - `python3 evaluate_agents.py --agent-a mcts:20 --agent-b random --games 20 --seed 71 --progress-every 1 --json-output results/evaluations/eval_mcts20_random_optimized.json --csv-output results/evaluations/eval_mcts20_random_optimized.csv --html-output results/evaluations/eval_mcts20_random_optimized.html`
     - mcts:20 won 20/20, avg reward 1.00, avg turns 15.80.
-  - `python3 evaluate_agents.py --agent-a mcts:20:6 --agent-b random --games 20 --seed 82 --progress-every 5 --json-output eval_mcts20c6_random_prior.json --csv-output eval_mcts20c6_random_prior.csv --html-output eval_mcts20c6_random_prior.html`
+  - `python3 evaluate_agents.py --agent-a mcts:20:6 --agent-b random --games 20 --seed 82 --progress-every 5 --json-output results/evaluations/eval_mcts20c6_random_prior.json --csv-output results/evaluations/eval_mcts20c6_random_prior.csv --html-output results/evaluations/eval_mcts20c6_random_prior.html`
     - mcts:20:6 won 20/20, avg reward 1.00, avg turns 12.00.
-  - `python3 evaluate_agents.py --agent-a mcts:20:6 --agent-b heuristic --games 10 --seed 83 --progress-every 1 --json-output eval_mcts20c6_heuristic_prior.json --csv-output eval_mcts20c6_heuristic_prior.csv --html-output eval_mcts20c6_heuristic_prior.html`
+  - `python3 evaluate_agents.py --agent-a mcts:20:6 --agent-b heuristic --games 10 --seed 83 --progress-every 1 --json-output results/evaluations/eval_mcts20c6_heuristic_prior.json --csv-output results/evaluations/eval_mcts20c6_heuristic_prior.csv --html-output results/evaluations/eval_mcts20c6_heuristic_prior.html`
     - mcts:20:6 won 4/10 vs heuristic, avg reward -0.20.
-  - `python3 evaluate_agents.py --agent-a mcts:50:6 --agent-b heuristic --games 10 --seed 84 --progress-every 1 --json-output eval_mcts50c6_heuristic_prior.json --csv-output eval_mcts50c6_heuristic_prior.csv --html-output eval_mcts50c6_heuristic_prior.html`
+  - `python3 evaluate_agents.py --agent-a mcts:50:6 --agent-b heuristic --games 10 --seed 84 --progress-every 1 --json-output results/evaluations/eval_mcts50c6_heuristic_prior.json --csv-output results/evaluations/eval_mcts50c6_heuristic_prior.csv --html-output results/evaluations/eval_mcts50c6_heuristic_prior.html`
     - mcts:50:6 won 6/10 vs heuristic, avg reward 0.20.
 - Next best step:
   - Run multi-seed evaluation for `heuristic`, `mcts:20:6`, and `mcts:50:6`.
   - Then consider DQN/PPO, using MCTS or heuristic for SFT data generation.
+
+## 2026-05-09 Browser Game UI
+
+- Added `game_ui.py`, a local interactive web interface.
+- Features:
+  - Clickable 12x12 masked triangular board.
+  - Human-vs-agent play.
+  - Agent-vs-agent step and auto-play.
+  - Supports existing agent specs:
+    - `human`
+    - `random`
+    - `heuristic`
+    - `mcts:20:6`
+    - `mcts:50:6`
+    - `qtable:results/checkpoints/q_table.json`
+  - Shows current player, mode, winner, last placed cell, and move log.
+- API endpoints:
+  - `GET /`
+  - `GET /api/state`
+  - `POST /api/new`
+  - `POST /api/move`
+  - `POST /api/agent-step`
+  - `POST /api/auto-play`
+- Verification:
+  - `python3 -m unittest -v`: passed, 18/18.
+  - Server started with `python3 game_ui.py --host 127.0.0.1 --port 8765`.
+  - `curl -s http://127.0.0.1:8765/api/state`: returned 96 cells and current state.
+  - `POST /api/new`, `POST /api/move`, and `POST /api/agent-step`: all returned valid updated game states.
+- Current server URL:
+  - `http://127.0.0.1:8765`
+
+## 2026-05-09 Tactical Interaction Fix
+
+- User observed that agent play looked non-interactive, as if each side ignored the opponent's stones.
+- Diagnosis:
+  - Earlier heuristic/MCTS scoring had opponent line penalties, but did not explicitly force immediate blocks.
+  - In low-simulation MCTS, this could make the agent miss obvious opponent threats.
+  - The UI also highlighted only the last move, so a completed four-in-a-row could look like an ongoing position rather than a terminal win.
+- Changes:
+  - Added explicit immediate winning-cell detection in `agents.py`.
+  - `HeuristicAgent` now prioritizes:
+    - own immediate win,
+    - opponent immediate win blocks,
+    - then regular line/shape scoring.
+  - MCTS tactical prior now includes the same immediate-win and immediate-block information.
+  - `game_ui.py` now marks:
+    - current-player one-move win cells,
+    - opponent one-move threat/block cells,
+    - final winning line cells.
+- Verification:
+  - `python3 -m unittest -v`: passed, 22/22.
+  - Direct reproduction: O at `(4,2), (4,3), (4,4)` and X to move makes `HeuristicAgent` choose `(4,5)`.
+  - `python3 evaluate_agents.py --agent-a heuristic --agent-b random --games 20 --seed 91 --progress-every 5`: heuristic won 20/20, avg turns 10.80.
+  - `python3 evaluate_agents.py --agent-a mcts:20:6 --agent-b random --games 10 --seed 92 --progress-every 5`: mcts won 10/10, avg turns 12.70.
+- UI server was restarted with the updated code at:
+  - `http://127.0.0.1:8765`
+
+## 2026-05-09 DQN Baseline
+
+- Added a pure neural DQN baseline. This is the first neural RL agent in the project.
+- New files:
+  - `dqn_model.py`
+    - CNN model.
+    - `3 x 12 x 12` current-player-perspective state encoder.
+    - 96-action Q-value output.
+    - legal-action mask helper.
+  - `train_dqn.py`
+    - Replay buffer.
+    - target network.
+    - epsilon-greedy self-play.
+    - zero-sum update: `reward - gamma * opponent_next_value`.
+    - reward history CSV/HTML output.
+  - `test_dqn.py`
+    - shape tests.
+    - checkpoint load test.
+    - `dqn:path` agent test.
+- Agent spec now supports:
+  - `dqn:path/to/checkpoint.pt`
+- Important distinction:
+  - DQN does not use the hand-written immediate-win/immediate-block heuristic.
+  - It only receives board tensors, legal action masks, and terminal rewards.
+  - Heuristic/MCTS remain baselines and possible expert data sources, not learned RL results.
+- Verification:
+  - `python3 -m unittest -v`: passed, 25/25.
+- Deterministic smoke training:
+  - Command:
+    - `python3 train_dqn.py --episodes 30 --eval-games 10 --seed 101 --batch-size 16 --train-after 32 --target-update 50 --output results/checkpoints/dqn_smoke.pt --history-csv results/history/dqn_smoke_history.csv --history-html results/history/dqn_smoke_history.html --deterministic`
+  - Result:
+    - train avg turns 46.73.
+    - train X win rate 0.333.
+    - eval learner win rate 0.800 vs random.
+    - saved `results/checkpoints/dqn_smoke.pt`, `results/history/dqn_smoke_history.csv`, `results/history/dqn_smoke_history.html`.
+- Stochastic smoke training:
+  - Command:
+    - `python3 train_dqn.py --episodes 30 --eval-games 10 --seed 103 --batch-size 16 --train-after 32 --target-update 50 --output results/checkpoints/dqn_stochastic_smoke.pt --history-csv results/history/dqn_stochastic_history.csv --history-html results/history/dqn_stochastic_history.html`
+  - Result:
+    - train avg turns 56.77.
+    - train X win rate 0.433.
+    - eval learner win rate 0.600 vs random.
+    - saved `results/checkpoints/dqn_stochastic_smoke.pt`, `results/history/dqn_stochastic_history.csv`, `results/history/dqn_stochastic_history.html`.
+- Generic evaluator checks:
+  - `python3 evaluate_agents.py --agent-a dqn:results/checkpoints/dqn_smoke.pt --agent-b random --games 10 --seed 102 --deterministic --progress-every 5 --json-output results/evaluations/eval_dqn_smoke_random.json --csv-output results/evaluations/eval_dqn_smoke_random.csv --html-output results/evaluations/eval_dqn_smoke_random.html`
+    - DQN won 8/10.
+  - `python3 evaluate_agents.py --agent-a dqn:results/checkpoints/dqn_stochastic_smoke.pt --agent-b random --games 10 --seed 104 --progress-every 5 --json-output results/evaluations/eval_dqn_stochastic_smoke_random.json --csv-output results/evaluations/eval_dqn_stochastic_smoke_random.csv --html-output results/evaluations/eval_dqn_stochastic_smoke_random.html`
+    - DQN won 9/10.
+- UI:
+  - `game_ui.py` now includes `dqn:results/checkpoints/dqn_stochastic_smoke.pt` and `dqn:results/checkpoints/dqn_smoke.pt` options.
+- Caveat:
+  - These are short smoke tests. They prove the DQN training/evaluation loop works, but are not final statistically reliable results.

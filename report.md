@@ -86,6 +86,26 @@ This agent is intended to become:
 - A rollout policy for future MCTS.
 - A data generator for possible SFT pretraining.
 
+### DQN Agent
+
+I added a pure neural DQN baseline. Unlike the heuristic and MCTS agents, DQN does not use hand-written immediate-win or immediate-block rules.
+
+The DQN input is a `3 x 12 x 12` tensor from the current player's perspective:
+
+- Channel 0: current player's stones.
+- Channel 1: opponent stones.
+- Channel 2: empty legal cells.
+
+The network outputs 96 Q-values, one for each playable action. Illegal occupied actions are masked during action selection. Training uses self-play with replay buffer, target network, and epsilon-greedy exploration.
+
+The zero-sum target is:
+
+```text
+target = reward - gamma * max_a Q(next_state, a)
+```
+
+where `next_state` is viewed from the opponent's perspective. This mirrors the tabular Q-learning setup but replaces the table with a CNN.
+
 ## 4. Evaluation Framework
 
 Reusable evaluation code was added before the heuristic agent:
@@ -128,8 +148,8 @@ I evaluated the heuristic agent against both random play and the current tabular
 Commands:
 
 ```bash
-python3 evaluate_agents.py --agent-a heuristic --agent-b random --games 100 --seed 21 --json-output eval_heuristic_random.json --csv-output eval_heuristic_random.csv --html-output eval_heuristic_random.html
-python3 evaluate_agents.py --agent-a heuristic --agent-b qtable:q_table.json --games 100 --seed 31 --json-output eval_heuristic_qtable.json --csv-output eval_heuristic_qtable.csv --html-output eval_heuristic_qtable.html
+python3 evaluate_agents.py --agent-a heuristic --agent-b random --games 100 --seed 21 --json-output results/evaluations/eval_heuristic_random.json --csv-output results/evaluations/eval_heuristic_random.csv --html-output results/evaluations/eval_heuristic_random.html
+python3 evaluate_agents.py --agent-a heuristic --agent-b qtable:results/checkpoints/q_table.json --games 100 --seed 31 --json-output results/evaluations/eval_heuristic_qtable.json --csv-output results/evaluations/eval_heuristic_qtable.csv --html-output results/evaluations/eval_heuristic_qtable.html
 ```
 
 Observed results:
@@ -142,8 +162,6 @@ Observed results:
 The heuristic baseline is much stronger than the current tabular learner. It is therefore a useful baseline for future comparisons and a good rollout policy candidate for MCTS.
 
 One caveat is that these are still smoke-test-sized evaluations. Final reporting should repeat the experiment across multiple seeds and larger game counts.
-
-## 6. Next Steps
 
 ## 6. MCTS and Reward Tracking
 
@@ -165,7 +183,7 @@ This is a correctness-first MCTS implementation. Early smoke testing showed that
 A tiny command-line smoke test completed successfully:
 
 ```bash
-python3 evaluate_agents.py --agent-a mcts:1 --agent-b random --games 1 --seed 61 --deterministic --json-output eval_mcts1_random_smoke.json --csv-output eval_mcts1_random_smoke.csv --html-output eval_mcts1_random_smoke.html
+python3 evaluate_agents.py --agent-a mcts:1 --agent-b random --games 1 --seed 61 --deterministic --json-output results/evaluations/eval_mcts1_random_smoke.json --csv-output results/evaluations/eval_mcts1_random_smoke.csv --html-output results/evaluations/eval_mcts1_random_smoke.html
 ```
 
 Observed result:
@@ -179,7 +197,7 @@ This one-game result only verifies the MCTS command path and reporting outputs. 
 The longer `mcts:20` stochastic evaluation eventually completed:
 
 ```bash
-python3 evaluate_agents.py --agent-a mcts:20 --agent-b random --games 20 --seed 51 --json-output eval_mcts20_random.json --csv-output eval_mcts20_random.csv --html-output eval_mcts20_random.html
+python3 evaluate_agents.py --agent-a mcts:20 --agent-b random --games 20 --seed 51 --json-output results/evaluations/eval_mcts20_random.json --csv-output results/evaluations/eval_mcts20_random.csv --html-output results/evaluations/eval_mcts20_random.html
 ```
 
 Observed result:
@@ -229,7 +247,7 @@ Reward tracking was also added:
 Example training reward command:
 
 ```bash
-python3 train_q_learning.py --episodes 60 --eval-games 20 --seed 17 --output q_table_reward_smoke.json --history-csv q_reward_history.csv --history-html q_reward_history.html
+python3 train_q_learning.py --episodes 60 --eval-games 20 --seed 17 --output results/checkpoints/q_table_reward_smoke.json --history-csv results/history/q_reward_history.csv --history-html results/history/q_reward_history.html
 ```
 
 Observed Q-learning reward smoke test:
@@ -238,9 +256,82 @@ Observed Q-learning reward smoke test:
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | Q reward smoke | 60 | 0.483 | 0.517 | 0.500 | 0.500 | 55.50 |
 
-The reward curve is saved in `q_reward_history.html`.
+The reward curve is saved in `results/history/q_reward_history.html`.
 
-## 7. Next Steps
+### DQN Smoke Tests
+
+DQN was trained in both deterministic and stochastic settings for short smoke tests. These runs are not intended as final results, but they verify the full neural RL loop.
+
+Deterministic command:
+
+```bash
+python3 train_dqn.py --episodes 30 --eval-games 10 --seed 101 --batch-size 16 --train-after 32 --target-update 50 --output results/checkpoints/dqn_smoke.pt --history-csv results/history/dqn_smoke_history.csv --history-html results/history/dqn_smoke_history.html --deterministic
+```
+
+Stochastic command:
+
+```bash
+python3 train_dqn.py --episodes 30 --eval-games 10 --seed 103 --batch-size 16 --train-after 32 --target-update 50 --output results/checkpoints/dqn_stochastic_smoke.pt --history-csv results/history/dqn_stochastic_history.csv --history-html results/history/dqn_stochastic_history.html
+```
+
+Observed smoke results:
+
+| Agent | Training env | Eval env | Games | Win rate vs random | Avg eval turns |
+| --- | --- | --- | ---: | ---: | ---: |
+| DQN smoke | Deterministic | Deterministic | 10 | 0.80 | 44.50 |
+| DQN smoke | Stochastic | Stochastic | 10 | 0.60 | 51.90 |
+
+The same checkpoints were also evaluated through the generic evaluator:
+
+| Agent | Opponent | Eval env | Games | Win rate | Avg reward | Avg turns |
+| --- | --- | --- | ---: | ---: | ---: | ---: |
+| `dqn:results/checkpoints/dqn_smoke.pt` | Random | Deterministic | 10 | 0.80 | 0.60 | 43.30 |
+| `dqn:results/checkpoints/dqn_stochastic_smoke.pt` | Random | Stochastic | 10 | 0.90 | 0.80 | 49.80 |
+
+The difference between the trainer's built-in evaluation and the generic evaluator comes from different random seeds and game samples. Longer multi-seed evaluation is needed before making a reliable strength claim.
+
+## 7. Interactive Game UI
+
+I added a local browser interface in `game_ui.py` so that the command-line interaction can be used as a visual game board.
+
+The interface supports:
+
+- Human-vs-agent play.
+- Agent-vs-agent stepping.
+- Agent-vs-agent auto-play.
+- Stochastic or deterministic placement.
+- Built-in agent specs including `random`, `heuristic`, `mcts:20:6`, `mcts:50:6`, and `qtable:results/checkpoints/q_table.json`.
+
+The UI uses the same Python environment and agent interface as the evaluation scripts, so future agents such as DQN or PPO can be exposed in the browser by adding their spec to `make_agent()`.
+
+After visual inspection, I added tactical highlighting and explicit threat response logic:
+
+- Cells where the current player can win immediately are highlighted.
+- Cells where the opponent can win immediately are highlighted as block targets.
+- Once a game is over, the full winning line is highlighted.
+- The heuristic and MCTS prior now explicitly identify immediate wins and immediate blocks before applying softer line-shape scoring.
+
+This addresses the concern that agents may look as if they are playing independently. In a deterministic reproduction where O has three in a row at `(4,2), (4,3), (4,4)` and X must respond, `HeuristicAgent` selects `(4,5)` to block.
+
+Run command:
+
+```bash
+python3 game_ui.py --host 127.0.0.1 --port 8765
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8765
+```
+
+Verification:
+
+- Unit tests pass: `22/22`.
+- `GET /api/state` returns the 96 playable cells.
+- `POST /api/new`, `POST /api/move`, and `POST /api/agent-step` update the game state correctly.
+
+## 8. Next Steps
 
 The next recommended steps are:
 
@@ -249,7 +340,7 @@ The next recommended steps are:
 3. Add a neural method such as DQN or PPO.
 4. Optionally generate SFT data from heuristic or MCTS games, pretrain a policy network, then fine-tune with RL.
 
-## 8. Limitations
+## 9. Limitations
 
 The current implementation still has several limitations:
 

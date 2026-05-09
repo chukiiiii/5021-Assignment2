@@ -6,6 +6,7 @@ import argparse
 from collections import defaultdict
 import csv
 import json
+from pathlib import Path
 import random
 from statistics import mean
 from typing import DefaultDict
@@ -196,6 +197,7 @@ def evaluate(
 
 
 def save_q_table(path: str, learner: QLearner, metadata: dict[str, object]) -> None:
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "metadata": metadata,
         "q_table": {state: actions for state, actions in learner.q.items() if actions},
@@ -205,6 +207,7 @@ def save_q_table(path: str, learner: QLearner, metadata: dict[str, object]) -> N
 
 
 def save_training_history_csv(path: str, history: list[dict[str, float | int | str]]) -> None:
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
     fieldnames = [
         "episode",
         "turns",
@@ -221,6 +224,7 @@ def save_training_history_csv(path: str, history: list[dict[str, float | int | s
 
 
 def save_training_history_html(path: str, history: list[dict[str, float | int | str]]) -> None:
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
     values = [float(row["rolling_x_reward_50"]) for row in history]
     chart = svg_line_chart(values, width=760, height=220)
     rows = "\n".join(
@@ -302,7 +306,7 @@ def main() -> None:
     parser.add_argument("--alpha", type=float, default=0.2)
     parser.add_argument("--gamma", type=float, default=0.95)
     parser.add_argument("--deterministic", action="store_true")
-    parser.add_argument("--output", default="q_table.json")
+    parser.add_argument("--output", default="results/checkpoints/q_table.json")
     parser.add_argument("--history-csv")
     parser.add_argument("--history-html")
     args = parser.parse_args()

@@ -90,12 +90,14 @@ def add_reward_columns(
 
 
 def save_json(path: str, summary: MatchSummary, results: list[dict[str, object]]) -> None:
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
     payload = {"summary": summary_dict(summary), "games": results}
     with open(path, "w", encoding="utf-8") as handle:
         json.dump(payload, handle, indent=2)
 
 
 def save_csv(path: str, rows: list[dict[str, object]]) -> None:
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
     fieldnames = [
         "game_index",
         "x_agent",
@@ -119,6 +121,7 @@ def save_csv(path: str, rows: list[dict[str, object]]) -> None:
 
 
 def save_html(path: str, summary: MatchSummary, rows: list[dict[str, object]]) -> None:
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
     if rows and "agent_a_cumulative_reward" not in rows[0]:
         rows = add_reward_columns(rows, summary)
     reward_values = [float(row["agent_a_cumulative_reward"]) for row in rows]
@@ -228,8 +231,8 @@ def svg_line_chart(values: list[float], width: int, height: int) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--agent-a", default="random", help="random | heuristic | mcts:N | qtable:path")
-    parser.add_argument("--agent-b", default="random", help="random | heuristic | mcts:N | qtable:path")
+    parser.add_argument("--agent-a", default="random", help="random | heuristic | mcts:N | qtable:path | dqn:path")
+    parser.add_argument("--agent-b", default="random", help="random | heuristic | mcts:N | qtable:path | dqn:path")
     parser.add_argument("--games", type=int, default=100)
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--deterministic", action="store_true")

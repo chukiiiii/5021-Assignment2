@@ -10,7 +10,16 @@ from typing import Any
 from urllib.parse import urlparse
 
 from agents import Agent, make_agent
-from super_tictactoe import EMPTY, O, X, SuperTicTacToeEnv, VALID_CELLS, player_name
+from super_tictactoe import (
+    CELL_TO_ACTION,
+    EMPTY,
+    O,
+    WINNING_LINES,
+    X,
+    SuperTicTacToeEnv,
+    VALID_CELLS,
+    player_name,
+)
 
 
 PLAYER_LABELS = {X: "X", O: "O"}
@@ -109,6 +118,12 @@ class GameSession:
 
     def serialize(self, error: str | None = None) -> dict[str, Any]:
         legal = set(self.env.available_actions()) if not self.env.done else set()
+        own_threats = set()
+        opponent_threats = set()
+        if not self.env.done:
+            own_threats = immediate_winning_actions(self.env, self.env.current_player)
+            opponent_threats = immediate_winning_actions(self.env, -self.env.current_player)
+        winning_actions = winning_line_actions(self.env)
         cells = []
         for action, (row, col) in enumerate(VALID_CELLS):
             cells.append(
@@ -118,6 +133,9 @@ class GameSession:
                     "col": col,
                     "value": self.env.board[row][col],
                     "legal": action in legal,
+                    "ownThreat": action in own_threats,
+                    "opponentThreat": action in opponent_threats,
+                    "winning": action in winning_actions,
                 }
             )
         last = self.log[-1] if self.log else None
@@ -142,6 +160,27 @@ class GameSession:
             "log": self.log[-80:],
             "error": error,
         }
+
+
+def immediate_winning_actions(env: SuperTicTacToeEnv, player: int) -> set[int]:
+    actions = set()
+    for action in env.available_actions():
+        row, col = env.action_to_cell(action)
+        env.board[row][col] = player
+        if env.check_winner() == player:
+            actions.add(action)
+        env.board[row][col] = EMPTY
+    return actions
+
+
+def winning_line_actions(env: SuperTicTacToeEnv) -> set[int]:
+    if env.winner is None:
+        return set()
+    for line in WINNING_LINES:
+        values = [env.board[row][col] for row, col in line]
+        if values and values[0] == env.winner and all(value == env.winner for value in values):
+            return {CELL_TO_ACTION[cell] for cell in line}
+    return set()
 
 
 SESSION = GameSession()
@@ -300,6 +339,16 @@ INDEX_HTML = r"""<!doctype html>
       outline: 3px solid var(--accent);
       outline-offset: -3px;
     }
+    .cell.own-threat {
+      box-shadow: inset 0 0 0 4px #f6c453;
+    }
+    .cell.opponent-threat {
+      box-shadow: inset 0 0 0 4px #ef7d45;
+    }
+    .cell.winning {
+      background: #fff3c4;
+      box-shadow: inset 0 0 0 4px #d99a00;
+    }
     aside {
       border-left: 1px solid var(--line);
       padding-left: 20px;
@@ -447,7 +496,9 @@ INDEX_HTML = r"""<!doctype html>
               <option value="mcts:20:6">mcts:20:6</option>
               <option value="mcts:50:6">mcts:50:6</option>
               <option value="random">random</option>
-              <option value="qtable:q_table.json">qtable:q_table.json</option>
+              <option value="qtable:results/checkpoints/q_table.json">qtable:results/checkpoints/q_table.json</option>
+              <option value="dqn:results/checkpoints/dqn_stochastic_smoke.pt">dqn:results/checkpoints/dqn_stochastic_smoke.pt</option>
+              <option value="dqn:results/checkpoints/dqn_smoke.pt">dqn:results/checkpoints/dqn_smoke.pt</option>
             </select>
           </label>
           <label>O Player
@@ -457,7 +508,9 @@ INDEX_HTML = r"""<!doctype html>
               <option value="mcts:20:6">mcts:20:6</option>
               <option value="mcts:50:6">mcts:50:6</option>
               <option value="random">random</option>
-              <option value="qtable:q_table.json">qtable:q_table.json</option>
+              <option value="qtable:results/checkpoints/q_table.json">qtable:results/checkpoints/q_table.json</option>
+              <option value="dqn:results/checkpoints/dqn_stochastic_smoke.pt">dqn:results/checkpoints/dqn_stochastic_smoke.pt</option>
+              <option value="dqn:results/checkpoints/dqn_smoke.pt">dqn:results/checkpoints/dqn_smoke.pt</option>
             </select>
           </label>
         </div>
@@ -549,6 +602,9 @@ INDEX_HTML = r"""<!doctype html>
               button.classList.add("occupied", "o");
             }
             if (`${row},${col}` === lastPlaced) button.classList.add("last");
+            if (cell.ownThreat) button.classList.add("own-threat");
+            if (cell.opponentThreat) button.classList.add("opponent-threat");
+            if (cell.winning) button.classList.add("winning");
             button.disabled = busy || state.done || state.currentAgent !== "human" || !cell.legal;
             button.title = `${cell.action} (${row},${col})`;
             button.addEventListener("click", () => humanMove(cell.action));

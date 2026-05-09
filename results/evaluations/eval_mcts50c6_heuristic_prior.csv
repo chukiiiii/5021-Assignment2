@@ -1,0 +1,11 @@
+game_index,x_agent,o_agent,winner,winner_agent,turns,forfeits,redirects,agent_a_reward,agent_b_reward,agent_a_cumulative_reward,agent_b_cumulative_reward,agent_a_rolling_reward,agent_b_rolling_reward
+0,mcts:50,heuristic,O,heuristic,10,0,6,-1.0,1.0,-1.0,1.0,-1.0,1.0
+1,heuristic,mcts:50,O,mcts:50,14,1,5,1.0,-1.0,0.0,0.0,0.0,0.0
+2,mcts:50,heuristic,X,mcts:50,11,1,4,1.0,-1.0,1.0,-1.0,0.3333333333333333,-0.3333333333333333
+3,heuristic,mcts:50,X,heuristic,9,1,3,-1.0,1.0,0.0,0.0,0.0,0.0
+4,mcts:50,heuristic,X,mcts:50,9,0,4,1.0,-1.0,1.0,-1.0,0.2,-0.2
+5,heuristic,mcts:50,X,heuristic,9,1,3,-1.0,1.0,0.0,0.0,0.0,0.0
+6,mcts:50,heuristic,X,mcts:50,13,2,7,1.0,-1.0,1.0,-1.0,0.14285714285714285,-0.14285714285714285
+7,heuristic,mcts:50,O,mcts:50,10,2,4,1.0,-1.0,2.0,-2.0,0.25,-0.25
+8,mcts:50,heuristic,X,mcts:50,9,0,4,1.0,-1.0,3.0,-3.0,0.3333333333333333,-0.3333333333333333
+9,heuristic,mcts:50,X,heuristic,9,0,4,-1.0,1.0,2.0,-2.0,0.2,-0.2

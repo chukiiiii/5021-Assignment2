@@ -73,6 +73,36 @@ class QTableAgent:
         return self.random.choice(best_actions)
 
 
+class DQNAgent:
+    def __init__(
+        self,
+        path: str,
+        seed: int | None = None,
+        name: str | None = None,
+    ) -> None:
+        from dqn_model import action_mask, load_checkpoint, masked_argmax, state_tensor
+
+        self.path = path
+        self.name = name or f"dqn:{path}"
+        self.random = random.Random(seed)
+        self.model, self.metadata = load_checkpoint(path)
+        self.action_mask = action_mask
+        self.masked_argmax = masked_argmax
+        self.state_tensor = state_tensor
+
+    def reset(self) -> None:
+        pass
+
+    def select_action(self, env: SuperTicTacToeEnv) -> int:
+        import torch
+
+        with torch.no_grad():
+            state = self.state_tensor(env).unsqueeze(0)
+            mask = self.action_mask(env)
+            q_values = self.model(state)[0]
+            return self.masked_argmax(q_values, mask)
+
+
 LINES_BY_CELL: dict[tuple[int, int], list[tuple[tuple[int, int], ...]]] = {
     cell: [] for cell in VALID_CELLS
 }
@@ -145,6 +175,20 @@ def _cell_shape_score(env: SuperTicTacToeEnv, player: int, cell: tuple[int, int]
     return 0.8 * line_participation + neighbor_bonus + 0.2 * center_bonus
 
 
+def _immediate_winning_cells(
+    env: SuperTicTacToeEnv,
+    player: int,
+) -> set[tuple[int, int]]:
+    cells = set()
+    for action in env.available_actions():
+        row, col = env.action_to_cell(action)
+        env.board[row][col] = player
+        if env.check_winner() == player:
+            cells.add((row, col))
+        env.board[row][col] = EMPTY
+    return cells
+
+
 class HeuristicAgent:
     """Expected-value tactical baseline for the stochastic board.
 
@@ -163,29 +207,65 @@ class HeuristicAgent:
 
     def select_action(self, env: SuperTicTacToeEnv) -> int:
         actions = env.available_actions()
-        scored = [(self.score_action(env, action), action) for action in actions]
+        player = env.current_player
+        own_winning = _immediate_winning_cells(env, player)
+        opponent_winning = _immediate_winning_cells(env, -player)
+        scored = [
+            (
+                self._score_action(
+                    env,
+                    action,
+                    own_winning=own_winning,
+                    opponent_winning=opponent_winning,
+                ),
+                action,
+            )
+            for action in actions
+        ]
         best_score = max(score for score, _ in scored)
         best_actions = [action for score, action in scored if score == best_score]
         return self.random.choice(best_actions)
 
     def score_action(self, env: SuperTicTacToeEnv, action: int) -> float:
         player = env.current_player
+        return self._score_action(
+            env,
+            action,
+            own_winning=_immediate_winning_cells(env, player),
+            opponent_winning=_immediate_winning_cells(env, -player),
+        )
+
+    def _score_action(
+        self,
+        env: SuperTicTacToeEnv,
+        action: int,
+        own_winning: set[tuple[int, int]],
+        opponent_winning: set[tuple[int, int]],
+    ) -> float:
+        player = env.current_player
         requested = env.action_to_cell(action)
         total = 0.0
 
         for target, probability in _placement_outcomes(env, action):
             if target is None:
-                total += probability * (_board_score(env, player) - 35.0)
+                miss_penalty = 500_000.0 if opponent_winning else 0.0
+                total += probability * (_board_score(env, player) - 35.0 - miss_penalty)
                 continue
 
             row, col = target
             env.board[row][col] = player
             winner = env.check_winner()
             if winner == player:
-                outcome_score = 1_000_000.0
+                outcome_score = 10_000_000.0
             else:
                 outcome_score = _board_score(env, player)
                 outcome_score += _cell_shape_score(env, player, target)
+                if target in own_winning:
+                    outcome_score += 8_000_000.0
+                if target in opponent_winning:
+                    outcome_score += 4_000_000.0
+                elif opponent_winning:
+                    outcome_score -= 500_000.0
                 if target == requested:
                     outcome_score += 2.0
             env.board[row][col] = EMPTY
@@ -292,8 +372,20 @@ class MCTSAgent:
     def _candidate_action_scores(self, env: SuperTicTacToeEnv) -> list[tuple[int, float]]:
         actions = env.available_actions()
         player = env.current_player
+        own_winning = _immediate_winning_cells(env, player)
+        opponent_winning = _immediate_winning_cells(env, -player)
         scored = [
-            (self._fast_action_score(env, action, player), self.random.random(), action)
+            (
+                self._fast_action_score(
+                    env,
+                    action,
+                    player,
+                    own_winning=own_winning,
+                    opponent_winning=opponent_winning,
+                ),
+                self.random.random(),
+                action,
+            )
             for action in actions
         ]
         scored.sort(reverse=True)
@@ -305,6 +397,8 @@ class MCTSAgent:
         env: SuperTicTacToeEnv,
         action: int,
         player: int,
+        own_winning: set[tuple[int, int]],
+        opponent_winning: set[tuple[int, int]],
     ) -> float:
         opponent = -player
         requested = env.action_to_cell(action)
@@ -312,10 +406,17 @@ class MCTSAgent:
 
         for target, probability in _placement_outcomes(env, action):
             if target is None:
-                total -= 25.0 * probability
+                miss_penalty = 500_000.0 if opponent_winning else 25.0
+                total -= miss_penalty * probability
                 continue
 
             block_bonus = 0.0
+            if target in own_winning:
+                block_bonus += 8_000_000.0
+            if target in opponent_winning:
+                block_bonus += 4_000_000.0
+            elif opponent_winning:
+                block_bonus -= 500_000.0
             for line in LINES_BY_CELL[target]:
                 values = [env.board[row][col] for row, col in line]
                 if values.count(opponent) == len(line) - 1 and values.count(EMPTY) == 1:
@@ -325,7 +426,7 @@ class MCTSAgent:
             env.board[row][col] = player
             winner = env.check_winner()
             if winner == player:
-                outcome_score = 1_000_000.0
+                outcome_score = 10_000_000.0
             else:
                 outcome_score = block_bonus + _cell_shape_score(env, player, target)
                 for line in LINES_BY_CELL[target]:
@@ -453,6 +554,7 @@ def make_agent(spec: str, seed: int | None = None) -> Agent:
     - `heuristic`
     - `mcts`, `mcts:simulations`, or `mcts:simulations:max_candidates`
     - `qtable:path/to/q_table.json`
+    - `dqn:path/to/checkpoint.pt`
     - `human`
     """
     if spec == "random":
@@ -475,6 +577,9 @@ def make_agent(spec: str, seed: int | None = None) -> Agent:
     if spec.startswith("qtable:"):
         path = spec.split(":", 1)[1]
         return QTableAgent(path=path, seed=seed)
+    if spec.startswith("dqn:"):
+        path = spec.split(":", 1)[1]
+        return DQNAgent(path=path, seed=seed)
     raise ValueError(f"unknown agent spec: {spec}")
 
 

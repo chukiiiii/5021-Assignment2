@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Super Tic-Tac-Toe Match Report</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; margin: 32px; color: #222; }
+    h1 { margin-bottom: 4px; }
+    .subtle { color: #666; margin-top: 0; }
+    .metric { display: grid; grid-template-columns: 160px 1fr 80px; gap: 12px; align-items: center; margin: 10px 0; }
+    .track { height: 14px; background: #e8e8e8; border-radius: 7px; overflow: hidden; }
+    .fill { height: 100%; background: #2aa7df; }
+    table { border-collapse: collapse; width: 100%; margin-top: 24px; font-size: 14px; }
+    th, td { border-bottom: 1px solid #ddd; padding: 8px 10px; text-align: left; }
+    th { background: #f5f5f5; }
+  </style>
+</head>
+<body>
+  <h1>Super Tic-Tac-Toe Match Report</h1>
+  <p class="subtle">A:random vs B:random, 10 games</p>
+  <div class='metric'><div class='label'>A:random</div><div class='track'><div class='fill' style='width: 80.00%'></div></div><div class='rate'>80.00%</div></div>
+<div class='metric'><div class='label'>B:random</div><div class='track'><div class='fill' style='width: 20.00%'></div></div><div class='rate'>20.00%</div></div>
+<div class='metric'><div class='label'>draw</div><div class='track'><div class='fill' style='width: 0.00%'></div></div><div class='rate'>0.00%</div></div>
+  <p>Average turns: 45.50. Average forfeits: 0.00. Average redirects: 0.00.</p>
+  <table>
+    <thead>
+      <tr><th>Game</th><th>X Agent</th><th>O Agent</th><th>Winner</th><th>Winner Agent</th><th>Turns</th><th>Forfeits</th><th>Redirects</th></tr>
+    </thead>
+    <tbody><tr><td>0</td><td>A:random</td><td>B:random</td><td>O</td><td>B:random</td><td>42</td><td>0</td><td>0</td></tr>
+<tr><td>1</td><td>B:random</td><td>A:random</td><td>O</td><td>A:random</td><td>68</td><td>0</td><td>0</td></tr>
+<tr><td>2</td><td>A:random</td><td>B:random</td><td>X</td><td>A:random</td><td>55</td><td>0</td><td>0</td></tr>
+<tr><td>3</td><td>B:random</td><td>A:random</td><td>O</td><td>A:random</td><td>32</td><td>0</td><td>0</td></tr>
+<tr><td>4</td><td>A:random</td><td>B:random</td><td>X</td><td>A:random</td><td>53</td><td>0</td><td>0</td></tr>
+<tr><td>5</td><td>B:random</td><td>A:random</td><td>O</td><td>A:random</td><td>56</td><td>0</td><td>0</td></tr>
+<tr><td>6</td><td>A:random</td><td>B:random</td><td>X</td><td>A:random</td><td>39</td><td>0</td><td>0</td></tr>
+<tr><td>7</td><td>B:random</td><td>A:random</td><td>O</td><td>A:random</td><td>28</td><td>0</td><td>0</td></tr>
+<tr><td>8</td><td>A:random</td><td>B:random</td><td>O</td><td>B:random</td><td>36</td><td>0</td><td>0</td></tr>
+<tr><td>9</td><td>B:random</td><td>A:random</td><td>O</td><td>A:random</td><td>46</td><td>0</td><td>0</td></tr></tbody>
+  </table>
+</body>
+</html>

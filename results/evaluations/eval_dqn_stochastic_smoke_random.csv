@@ -1,0 +1,11 @@
+game_index,x_agent,o_agent,winner,winner_agent,turns,forfeits,redirects,agent_a_reward,agent_b_reward,agent_a_cumulative_reward,agent_b_cumulative_reward,agent_a_rolling_reward,agent_b_rolling_reward
+0,dqn:dqn_stochastic_smoke.pt,random,X,dqn:dqn_stochastic_smoke.pt,53,7,12,1.0,-1.0,1.0,-1.0,1.0,-1.0
+1,random,dqn:dqn_stochastic_smoke.pt,O,dqn:dqn_stochastic_smoke.pt,40,6,19,1.0,-1.0,2.0,-2.0,1.0,-1.0
+2,dqn:dqn_stochastic_smoke.pt,random,X,dqn:dqn_stochastic_smoke.pt,29,4,15,1.0,-1.0,3.0,-3.0,1.0,-1.0
+3,random,dqn:dqn_stochastic_smoke.pt,O,dqn:dqn_stochastic_smoke.pt,40,6,13,1.0,-1.0,4.0,-4.0,1.0,-1.0
+4,dqn:dqn_stochastic_smoke.pt,random,X,dqn:dqn_stochastic_smoke.pt,51,6,14,1.0,-1.0,5.0,-5.0,1.0,-1.0
+5,random,dqn:dqn_stochastic_smoke.pt,X,random,81,22,22,-1.0,1.0,4.0,-4.0,0.6666666666666666,-0.6666666666666666
+6,dqn:dqn_stochastic_smoke.pt,random,X,dqn:dqn_stochastic_smoke.pt,61,16,18,1.0,-1.0,5.0,-5.0,0.7142857142857143,-0.7142857142857143
+7,random,dqn:dqn_stochastic_smoke.pt,O,dqn:dqn_stochastic_smoke.pt,40,9,15,1.0,-1.0,6.0,-6.0,0.75,-0.75
+8,dqn:dqn_stochastic_smoke.pt,random,X,dqn:dqn_stochastic_smoke.pt,53,11,17,1.0,-1.0,7.0,-7.0,0.7777777777777778,-0.7777777777777778
+9,random,dqn:dqn_stochastic_smoke.pt,O,dqn:dqn_stochastic_smoke.pt,50,9,16,1.0,-1.0,8.0,-8.0,0.8,-0.8
