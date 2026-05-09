@@ -1,0 +1,4 @@
+opponent,seeds,games_total,mean_win_rate,std_win_rate,mean_reward,std_reward,mean_turns,agent_a,agent_b
+random,3,30,0.7666666666666667,0.2516611478423583,0.5333333333333333,0.5033222956847166,44.13333333333333,dqn:results/checkpoints/dqn_long_seed201.pt,random
+heuristic,3,30,0.0,0.0,-1.0,0.0,11.566666666666666,dqn:results/checkpoints/dqn_long_seed201.pt,heuristic
+mcts20c6,3,12,0.0,0.0,-1.0,0.0,11.333333333333334,dqn:results/checkpoints/dqn_long_seed201.pt,mcts:20

@@ -1,0 +1,52 @@
+{
+  "summary": {
+    "agent_a": "dqn:results/checkpoints/dqn_stochastic_smoke.pt",
+    "agent_b": "random",
+    "games": 2,
+    "agent_a_wins": 2,
+    "agent_b_wins": 0,
+    "draws": 0,
+    "agent_a_win_rate": 1.0,
+    "agent_b_win_rate": 0.0,
+    "draw_rate": 0.0,
+    "x_win_rate": 0.5,
+    "o_win_rate": 0.5,
+    "avg_turns": 34.5,
+    "avg_forfeits": 5,
+    "avg_redirects": 11.5
+  },
+  "games": [
+    {
+      "game_index": 0,
+      "x_agent": "dqn:results/checkpoints/dqn_stochastic_smoke.pt",
+      "o_agent": "random",
+      "winner": "X",
+      "winner_agent": "dqn:results/checkpoints/dqn_stochastic_smoke.pt",
+      "turns": 23,
+      "forfeits": 2,
+      "redirects": 9,
+      "agent_a_reward": 1.0,
+      "agent_b_reward": -1.0,
+      "agent_a_cumulative_reward": 1.0,
+      "agent_b_cumulative_reward": -1.0,
+      "agent_a_rolling_reward": 1.0,
+      "agent_b_rolling_reward": -1.0
+    },
+    {
+      "game_index": 1,
+      "x_agent": "random",
+      "o_agent": "dqn:results/checkpoints/dqn_stochastic_smoke.pt",
+      "winner": "O",
+      "winner_agent": "dqn:results/checkpoints/dqn_stochastic_smoke.pt",
+      "turns": 46,
+      "forfeits": 8,
+      "redirects": 14,
+      "agent_a_reward": 1.0,
+      "agent_b_reward": -1.0,
+      "agent_a_cumulative_reward": 2.0,
+      "agent_b_cumulative_reward": -2.0,
+      "agent_a_rolling_reward": 1.0,
+      "agent_b_rolling_reward": -1.0
+    }
+  ]
+}

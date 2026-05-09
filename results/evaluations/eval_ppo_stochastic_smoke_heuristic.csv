@@ -1,0 +1,11 @@
+game_index,x_agent,o_agent,winner,winner_agent,turns,forfeits,redirects,agent_a_reward,agent_b_reward,agent_a_cumulative_reward,agent_b_cumulative_reward,agent_a_rolling_reward,agent_b_rolling_reward
+0,ppo:results/checkpoints/ppo_stochastic_smoke.pt,heuristic,O,heuristic,24,2,11,-1.0,1.0,-1.0,1.0,-1.0,1.0
+1,heuristic,ppo:results/checkpoints/ppo_stochastic_smoke.pt,X,heuristic,9,2,2,-1.0,1.0,-2.0,2.0,-1.0,1.0
+2,ppo:results/checkpoints/ppo_stochastic_smoke.pt,heuristic,O,heuristic,18,2,8,-1.0,1.0,-3.0,3.0,-1.0,1.0
+3,heuristic,ppo:results/checkpoints/ppo_stochastic_smoke.pt,X,heuristic,9,2,3,-1.0,1.0,-4.0,4.0,-1.0,1.0
+4,ppo:results/checkpoints/ppo_stochastic_smoke.pt,heuristic,O,heuristic,10,2,2,-1.0,1.0,-5.0,5.0,-1.0,1.0
+5,heuristic,ppo:results/checkpoints/ppo_stochastic_smoke.pt,X,heuristic,9,3,1,-1.0,1.0,-6.0,6.0,-1.0,1.0
+6,ppo:results/checkpoints/ppo_stochastic_smoke.pt,heuristic,O,heuristic,10,0,3,-1.0,1.0,-7.0,7.0,-1.0,1.0
+7,heuristic,ppo:results/checkpoints/ppo_stochastic_smoke.pt,X,heuristic,7,0,2,-1.0,1.0,-8.0,8.0,-1.0,1.0
+8,ppo:results/checkpoints/ppo_stochastic_smoke.pt,heuristic,O,heuristic,20,2,11,-1.0,1.0,-9.0,9.0,-1.0,1.0
+9,heuristic,ppo:results/checkpoints/ppo_stochastic_smoke.pt,X,heuristic,11,3,4,-1.0,1.0,-10.0,10.0,-1.0,1.0

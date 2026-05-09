@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Super Tic-Tac-Toe Match Report</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; margin: 32px; color: #222; }
+    h1 { margin-bottom: 4px; }
+    .subtle { color: #666; margin-top: 0; }
+    .metric { display: grid; grid-template-columns: 160px 1fr 80px; gap: 12px; align-items: center; margin: 10px 0; }
+    .track { height: 14px; background: #e8e8e8; border-radius: 7px; overflow: hidden; }
+    .fill { height: 100%; background: #2aa7df; }
+    table { border-collapse: collapse; width: 100%; margin-top: 24px; font-size: 14px; }
+    th, td { border-bottom: 1px solid #ddd; padding: 8px 10px; text-align: left; }
+    th { background: #f5f5f5; }
+  </style>
+</head>
+<body>
+  <h1>Super Tic-Tac-Toe Match Report</h1>
+  <p class="subtle">heuristic vs random, 100 games</p>
+  <div class='metric'><div class='label'>heuristic</div><div class='track'><div class='fill' style='width: 100.00%'></div></div><div class='rate'>100.00%</div></div>
+<div class='metric'><div class='label'>random</div><div class='track'><div class='fill' style='width: 0.00%'></div></div><div class='rate'>0.00%</div></div>
+<div class='metric'><div class='label'>draw</div><div class='track'><div class='fill' style='width: 0.00%'></div></div><div class='rate'>0.00%</div></div>
+  <p>Average turns: 11.70. Average forfeits: 1.14. Average redirects: 4.67.</p>
+  <table>
+    <thead>
+      <tr><th>Game</th><th>X Agent</th><th>O Agent</th><th>Winner</th><th>Winner Agent</th><th>Turns</th><th>Forfeits</th><th>Redirects</th></tr>
+    </thead>
+    <tbody><tr><td>0</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>11</td><td>1</td><td>4</td></tr>
+<tr><td>1</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>8</td><td>0</td><td>2</td></tr>
+<tr><td>2</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>9</td><td>0</td><td>5</td></tr>
+<tr><td>3</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>8</td><td>0</td><td>1</td></tr>
+<tr><td>4</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>13</td><td>0</td><td>6</td></tr>
+<tr><td>5</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>10</td><td>1</td><td>2</td></tr>
+<tr><td>6</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>13</td><td>1</td><td>7</td></tr>
+<tr><td>7</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>8</td><td>1</td><td>1</td></tr>
+<tr><td>8</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>21</td><td>1</td><td>10</td></tr>
+<tr><td>9</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>12</td><td>1</td><td>4</td></tr>
+<tr><td>10</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>7</td><td>0</td><td>2</td></tr>
+<tr><td>11</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>12</td><td>1</td><td>3</td></tr>
+<tr><td>12</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>15</td><td>3</td><td>7</td></tr>
+<tr><td>13</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>16</td><td>4</td><td>4</td></tr>
+<tr><td>14</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>13</td><td>2</td><td>6</td></tr>
+<tr><td>15</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>22</td><td>6</td><td>6</td></tr>
+<tr><td>16</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>13</td><td>0</td><td>7</td></tr>
+<tr><td>17</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>18</td><td>4</td><td>8</td></tr>
+<tr><td>18</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>17</td><td>3</td><td>4</td></tr>
+<tr><td>19</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>12</td><td>1</td><td>4</td></tr>
+<tr><td>20</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>11</td><td>0</td><td>6</td></tr>
+<tr><td>21</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>8</td><td>0</td><td>1</td></tr>
+<tr><td>22</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>15</td><td>2</td><td>7</td></tr>
+<tr><td>23</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>10</td><td>0</td><td>3</td></tr>
+<tr><td>24</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>9</td><td>1</td><td>5</td></tr>
+<tr><td>25</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>8</td><td>0</td><td>1</td></tr>
+<tr><td>26</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>11</td><td>1</td><td>7</td></tr>
+<tr><td>27</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>8</td><td>1</td><td>2</td></tr>
+<tr><td>28</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>9</td><td>0</td><td>4</td></tr>
+<tr><td>29</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>16</td><td>5</td><td>4</td></tr>
+<tr><td>30</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>15</td><td>4</td><td>4</td></tr>
+<tr><td>31</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>10</td><td>2</td><td>3</td></tr>
+<tr><td>32</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>13</td><td>0</td><td>6</td></tr>
+<tr><td>33</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>12</td><td>1</td><td>7</td></tr>
+<tr><td>34</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>19</td><td>4</td><td>6</td></tr>
+<tr><td>35</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>8</td><td>0</td><td>4</td></tr>
+<tr><td>36</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>11</td><td>0</td><td>6</td></tr>
+<tr><td>37</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>14</td><td>1</td><td>7</td></tr>
+<tr><td>38</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>7</td><td>1</td><td>1</td></tr>
+<tr><td>39</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>12</td><td>0</td><td>6</td></tr>
+<tr><td>40</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>11</td><td>2</td><td>5</td></tr>
+<tr><td>41</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>10</td><td>1</td><td>2</td></tr>
+<tr><td>42</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>15</td><td>2</td><td>6</td></tr>
+<tr><td>43</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>12</td><td>0</td><td>5</td></tr>
+<tr><td>44</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>19</td><td>3</td><td>9</td></tr>
+<tr><td>45</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>10</td><td>2</td><td>4</td></tr>
+<tr><td>46</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>15</td><td>1</td><td>7</td></tr>
+<tr><td>47</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>12</td><td>1</td><td>6</td></tr>
+<tr><td>48</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>13</td><td>2</td><td>6</td></tr>
+<tr><td>49</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>12</td><td>0</td><td>6</td></tr>
+<tr><td>50</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>9</td><td>1</td><td>2</td></tr>
+<tr><td>51</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>10</td><td>1</td><td>4</td></tr>
+<tr><td>52</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>13</td><td>0</td><td>7</td></tr>
+<tr><td>53</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>16</td><td>2</td><td>7</td></tr>
+<tr><td>54</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>9</td><td>4</td><td>2</td></tr>
+<tr><td>55</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>8</td><td>0</td><td>5</td></tr>
+<tr><td>56</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>9</td><td>1</td><td>3</td></tr>
+<tr><td>57</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>12</td><td>1</td><td>5</td></tr>
+<tr><td>58</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>11</td><td>1</td><td>3</td></tr>
+<tr><td>59</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>10</td><td>2</td><td>6</td></tr>
+<tr><td>60</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>9</td><td>0</td><td>5</td></tr>
+<tr><td>61</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>12</td><td>0</td><td>5</td></tr>
+<tr><td>62</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>9</td><td>1</td><td>2</td></tr>
+<tr><td>63</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>10</td><td>0</td><td>6</td></tr>
+<tr><td>64</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>13</td><td>2</td><td>4</td></tr>
+<tr><td>65</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>12</td><td>2</td><td>3</td></tr>
+<tr><td>66</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>9</td><td>2</td><td>2</td></tr>
+<tr><td>67</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>10</td><td>0</td><td>4</td></tr>
+<tr><td>68</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>9</td><td>0</td><td>4</td></tr>
+<tr><td>69</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>12</td><td>1</td><td>8</td></tr>
+<tr><td>70</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>15</td><td>1</td><td>7</td></tr>
+<tr><td>71</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>10</td><td>1</td><td>3</td></tr>
+<tr><td>72</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>7</td><td>0</td><td>3</td></tr>
+<tr><td>73</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>14</td><td>2</td><td>7</td></tr>
+<tr><td>74</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>9</td><td>1</td><td>1</td></tr>
+<tr><td>75</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>12</td><td>1</td><td>5</td></tr>
+<tr><td>76</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>11</td><td>1</td><td>3</td></tr>
+<tr><td>77</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>10</td><td>1</td><td>5</td></tr>
+<tr><td>78</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>7</td><td>0</td><td>2</td></tr>
+<tr><td>79</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>10</td><td>0</td><td>5</td></tr>
+<tr><td>80</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>15</td><td>1</td><td>6</td></tr>
+<tr><td>81</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>8</td><td>0</td><td>4</td></tr>
+<tr><td>82</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>11</td><td>0</td><td>5</td></tr>
+<tr><td>83</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>10</td><td>1</td><td>1</td></tr>
+<tr><td>84</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>9</td><td>0</td><td>5</td></tr>
+<tr><td>85</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>18</td><td>3</td><td>8</td></tr>
+<tr><td>86</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>13</td><td>4</td><td>4</td></tr>
+<tr><td>87</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>10</td><td>0</td><td>4</td></tr>
+<tr><td>88</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>11</td><td>0</td><td>5</td></tr>
+<tr><td>89</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>12</td><td>2</td><td>4</td></tr>
+<tr><td>90</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>11</td><td>1</td><td>4</td></tr>
+<tr><td>91</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>16</td><td>1</td><td>10</td></tr>
+<tr><td>92</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>11</td><td>0</td><td>5</td></tr>
+<tr><td>93</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>8</td><td>0</td><td>2</td></tr>
+<tr><td>94</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>13</td><td>1</td><td>5</td></tr>
+<tr><td>95</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>16</td><td>2</td><td>8</td></tr>
+<tr><td>96</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>13</td><td>1</td><td>4</td></tr>
+<tr><td>97</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>12</td><td>1</td><td>6</td></tr>
+<tr><td>98</td><td>heuristic</td><td>random</td><td>X</td><td>heuristic</td><td>11</td><td>0</td><td>5</td></tr>
+<tr><td>99</td><td>random</td><td>heuristic</td><td>O</td><td>heuristic</td><td>12</td><td>0</td><td>5</td></tr></tbody>
+  </table>
+</body>
+</html>

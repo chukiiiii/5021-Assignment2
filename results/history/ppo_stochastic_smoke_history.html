@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>PPO Reward History</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; margin: 32px; color: #222; }
+    svg { width: 100%; max-width: 780px; height: auto; border: 1px solid #ddd; background: #fff; }
+    .axis { stroke: #bbb; stroke-width: 1; }
+    .line { fill: none; stroke: #2e7d32; stroke-width: 3; }
+    table { border-collapse: collapse; width: 100%; margin-top: 24px; font-size: 14px; }
+    th, td { border-bottom: 1px solid #ddd; padding: 8px 10px; text-align: left; }
+    th { background: #f5f5f5; }
+  </style>
+</head>
+<body>
+  <h1>PPO Reward History</h1>
+  <p>Rolling reward is measured from X's perspective over the latest 50 self-play episodes.</p>
+  <svg viewBox='0 0 760 220' role='img'><line class='axis' x1='28' y1='110.0' x2='732' y2='110.0' /><polyline class='line' points='28.0,192.0 52.3,110.0 76.6,82.7 100.8,110.0 125.1,126.4 149.4,137.3 173.7,121.7 197.9,130.5 222.2,119.1 246.5,110.0 270.8,117.5 295.0,123.7 319.3,128.9 343.6,121.7 367.9,115.5 392.1,110.0 416.4,105.2 440.7,110.0 465.0,105.7 489.2,101.8 513.5,106.1 537.8,110.0 562.1,113.6 586.3,116.8 610.6,113.3 634.9,110.0 659.2,113.0 683.4,115.9 707.7,112.8 732.0,110.0' /><text x='28' y='18'>+1</text><text x='28' y='212'>-1</text></svg>
+  <table>
+    <thead><tr><th>Episode</th><th>Update</th><th>Winner</th><th>Turns</th><th>X Reward</th><th>Rolling X Reward</th><th>Loss</th><th>Entropy</th></tr></thead>
+    <tbody><tr><td>1</td><td>1</td><td>O</td><td>100</td><td>-1</td><td>-1.000</td><td>0.0645</td><td>4.113</td></tr>
+<tr><td>2</td><td>1</td><td>X</td><td>59</td><td>1</td><td>0.000</td><td>0.0645</td><td>4.113</td></tr>
+<tr><td>3</td><td>1</td><td>X</td><td>49</td><td>1</td><td>0.333</td><td>0.0645</td><td>4.113</td></tr>
+<tr><td>4</td><td>1</td><td>O</td><td>50</td><td>-1</td><td>0.000</td><td>0.0645</td><td>4.113</td></tr>
+<tr><td>5</td><td>1</td><td>O</td><td>102</td><td>-1</td><td>-0.200</td><td>0.0645</td><td>4.113</td></tr>
+<tr><td>6</td><td>2</td><td>O</td><td>76</td><td>-1</td><td>-0.333</td><td>0.1594</td><td>4.116</td></tr>
+<tr><td>7</td><td>2</td><td>X</td><td>93</td><td>1</td><td>-0.143</td><td>0.1594</td><td>4.116</td></tr>
+<tr><td>8</td><td>2</td><td>O</td><td>20</td><td>-1</td><td>-0.250</td><td>0.1594</td><td>4.116</td></tr>
+<tr><td>9</td><td>2</td><td>X</td><td>75</td><td>1</td><td>-0.111</td><td>0.1594</td><td>4.116</td></tr>
+<tr><td>10</td><td>2</td><td>X</td><td>53</td><td>1</td><td>0.000</td><td>0.1594</td><td>4.116</td></tr>
+<tr><td>11</td><td>3</td><td>O</td><td>60</td><td>-1</td><td>-0.091</td><td>0.1630</td><td>4.167</td></tr>
+<tr><td>12</td><td>3</td><td>O</td><td>70</td><td>-1</td><td>-0.167</td><td>0.1630</td><td>4.167</td></tr>
+<tr><td>13</td><td>3</td><td>O</td><td>52</td><td>-1</td><td>-0.231</td><td>0.1630</td><td>4.167</td></tr>
+<tr><td>14</td><td>3</td><td>X</td><td>67</td><td>1</td><td>-0.143</td><td>0.1630</td><td>4.167</td></tr>
+<tr><td>15</td><td>3</td><td>X</td><td>71</td><td>1</td><td>-0.067</td><td>0.1630</td><td>4.167</td></tr>
+<tr><td>16</td><td>4</td><td>X</td><td>85</td><td>1</td><td>0.000</td><td>0.1296</td><td>4.118</td></tr>
+<tr><td>17</td><td>4</td><td>X</td><td>63</td><td>1</td><td>0.059</td><td>0.1296</td><td>4.118</td></tr>
+<tr><td>18</td><td>4</td><td>O</td><td>98</td><td>-1</td><td>0.000</td><td>0.1296</td><td>4.118</td></tr>
+<tr><td>19</td><td>4</td><td>X</td><td>69</td><td>1</td><td>0.053</td><td>0.1296</td><td>4.118</td></tr>
+<tr><td>20</td><td>4</td><td>X</td><td>41</td><td>1</td><td>0.100</td><td>0.1296</td><td>4.118</td></tr>
+<tr><td>21</td><td>5</td><td>O</td><td>72</td><td>-1</td><td>0.048</td><td>0.1754</td><td>4.090</td></tr>
+<tr><td>22</td><td>5</td><td>O</td><td>30</td><td>-1</td><td>0.000</td><td>0.1754</td><td>4.090</td></tr>
+<tr><td>23</td><td>5</td><td>O</td><td>84</td><td>-1</td><td>-0.043</td><td>0.1754</td><td>4.090</td></tr>
+<tr><td>24</td><td>5</td><td>O</td><td>44</td><td>-1</td><td>-0.083</td><td>0.1754</td><td>4.090</td></tr>
+<tr><td>25</td><td>5</td><td>X</td><td>87</td><td>1</td><td>-0.040</td><td>0.1754</td><td>4.090</td></tr>
+<tr><td>26</td><td>6</td><td>X</td><td>75</td><td>1</td><td>0.000</td><td>0.0840</td><td>4.128</td></tr>
+<tr><td>27</td><td>6</td><td>O</td><td>58</td><td>-1</td><td>-0.037</td><td>0.0840</td><td>4.128</td></tr>
+<tr><td>28</td><td>6</td><td>O</td><td>68</td><td>-1</td><td>-0.071</td><td>0.0840</td><td>4.128</td></tr>
+<tr><td>29</td><td>6</td><td>X</td><td>35</td><td>1</td><td>-0.034</td><td>0.0840</td><td>4.128</td></tr>
+<tr><td>30</td><td>6</td><td>X</td><td>79</td><td>1</td><td>0.000</td><td>0.0840</td><td>4.128</td></tr></tbody>
+  </table>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>DQN Reward History</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; margin: 32px; color: #222; }
+    svg { width: 100%; max-width: 780px; height: auto; border: 1px solid #ddd; background: #fff; }
+    .axis { stroke: #bbb; stroke-width: 1; }
+    .line { fill: none; stroke: #1565c0; stroke-width: 3; }
+    table { border-collapse: collapse; width: 100%; margin-top: 24px; font-size: 14px; }
+    th, td { border-bottom: 1px solid #ddd; padding: 8px 10px; text-align: left; }
+    th { background: #f5f5f5; }
+  </style>
+</head>
+<body>
+  <h1>DQN Reward History</h1>
+  <p>Rolling reward is measured from X's perspective over the latest 50 episodes.</p>
+  <svg viewBox='0 0 760 220' role='img'><line class='axis' x1='28' y1='110.0' x2='732' y2='110.0' /><polyline class='line' points='28.0,192.0 52.3,110.0 76.6,137.3 100.8,151.0 125.1,159.2 149.4,164.7 173.7,168.6 197.9,151.0 222.2,155.6 246.5,142.8 270.8,132.4 295.0,137.3 319.3,141.5 343.6,145.1 367.9,148.3 392.1,151.0 416.4,143.8 440.7,137.3 465.0,131.6 489.2,134.6 513.5,137.3 537.8,139.8 562.1,142.1 586.3,137.3 610.6,139.5 634.9,135.2 659.2,131.3 683.4,133.4 707.7,135.4 732.0,137.3' /><text x='28' y='18'>+1</text><text x='28' y='212'>-1</text></svg>
+  <table>
+    <thead><tr><th>Episode</th><th>Winner</th><th>Turns</th><th>X Reward</th><th>Rolling X Reward</th><th>Epsilon</th><th>Replay</th><th>Avg Loss</th></tr></thead>
+    <tbody><tr><td>1</td><td>O</td><td>58</td><td>-1</td><td>-1.000</td><td>1.000</td><td>58</td><td>0.0027</td></tr>
+<tr><td>2</td><td>X</td><td>57</td><td>1</td><td>0.000</td><td>0.967</td><td>115</td><td>0.0113</td></tr>
+<tr><td>3</td><td>O</td><td>56</td><td>-1</td><td>-0.333</td><td>0.934</td><td>171</td><td>0.0083</td></tr>
+<tr><td>4</td><td>O</td><td>64</td><td>-1</td><td>-0.500</td><td>0.902</td><td>235</td><td>0.0050</td></tr>
+<tr><td>5</td><td>O</td><td>50</td><td>-1</td><td>-0.600</td><td>0.869</td><td>285</td><td>0.0062</td></tr>
+<tr><td>6</td><td>O</td><td>56</td><td>-1</td><td>-0.667</td><td>0.836</td><td>341</td><td>0.0080</td></tr>
+<tr><td>7</td><td>O</td><td>66</td><td>-1</td><td>-0.714</td><td>0.803</td><td>407</td><td>0.0106</td></tr>
+<tr><td>8</td><td>X</td><td>61</td><td>1</td><td>-0.500</td><td>0.771</td><td>468</td><td>0.0094</td></tr>
+<tr><td>9</td><td>O</td><td>56</td><td>-1</td><td>-0.556</td><td>0.738</td><td>524</td><td>0.0058</td></tr>
+<tr><td>10</td><td>X</td><td>39</td><td>1</td><td>-0.400</td><td>0.705</td><td>563</td><td>0.0082</td></tr>
+<tr><td>11</td><td>X</td><td>69</td><td>1</td><td>-0.273</td><td>0.672</td><td>632</td><td>0.0054</td></tr>
+<tr><td>12</td><td>O</td><td>18</td><td>-1</td><td>-0.333</td><td>0.640</td><td>650</td><td>0.0030</td></tr>
+<tr><td>13</td><td>O</td><td>38</td><td>-1</td><td>-0.385</td><td>0.607</td><td>688</td><td>0.0069</td></tr>
+<tr><td>14</td><td>O</td><td>44</td><td>-1</td><td>-0.429</td><td>0.574</td><td>732</td><td>0.0098</td></tr>
+<tr><td>15</td><td>O</td><td>36</td><td>-1</td><td>-0.467</td><td>0.541</td><td>768</td><td>0.0072</td></tr>
+<tr><td>16</td><td>O</td><td>22</td><td>-1</td><td>-0.500</td><td>0.509</td><td>790</td><td>0.0089</td></tr>
+<tr><td>17</td><td>X</td><td>43</td><td>1</td><td>-0.412</td><td>0.476</td><td>833</td><td>0.0060</td></tr>
+<tr><td>18</td><td>X</td><td>29</td><td>1</td><td>-0.333</td><td>0.443</td><td>862</td><td>0.0057</td></tr>
+<tr><td>19</td><td>X</td><td>41</td><td>1</td><td>-0.263</td><td>0.410</td><td>903</td><td>0.0064</td></tr>
+<tr><td>20</td><td>O</td><td>46</td><td>-1</td><td>-0.300</td><td>0.378</td><td>949</td><td>0.0053</td></tr>
+<tr><td>21</td><td>O</td><td>32</td><td>-1</td><td>-0.333</td><td>0.345</td><td>981</td><td>0.0049</td></tr>
+<tr><td>22</td><td>O</td><td>50</td><td>-1</td><td>-0.364</td><td>0.312</td><td>1031</td><td>0.0079</td></tr>
+<tr><td>23</td><td>O</td><td>42</td><td>-1</td><td>-0.391</td><td>0.279</td><td>1073</td><td>0.0083</td></tr>
+<tr><td>24</td><td>X</td><td>57</td><td>1</td><td>-0.333</td><td>0.247</td><td>1130</td><td>0.0082</td></tr>
+<tr><td>25</td><td>O</td><td>66</td><td>-1</td><td>-0.360</td><td>0.214</td><td>1196</td><td>0.0123</td></tr>
+<tr><td>26</td><td>X</td><td>49</td><td>1</td><td>-0.308</td><td>0.181</td><td>1245</td><td>0.0088</td></tr>
+<tr><td>27</td><td>X</td><td>35</td><td>1</td><td>-0.259</td><td>0.148</td><td>1280</td><td>0.0102</td></tr>
+<tr><td>28</td><td>O</td><td>40</td><td>-1</td><td>-0.286</td><td>0.116</td><td>1320</td><td>0.0082</td></tr>
+<tr><td>29</td><td>O</td><td>58</td><td>-1</td><td>-0.310</td><td>0.083</td><td>1378</td><td>0.0076</td></tr>
+<tr><td>30</td><td>O</td><td>24</td><td>-1</td><td>-0.333</td><td>0.050</td><td>1402</td><td>0.0051</td></tr></tbody>
+  </table>
+</body>
+</html>

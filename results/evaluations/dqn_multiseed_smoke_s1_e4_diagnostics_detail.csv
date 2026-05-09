@@ -1,0 +1,4 @@
+seed,checkpoint,opponent,opponent_spec,games,agent_a,agent_b,win_rate,avg_reward,draw_rate,avg_turns,avg_forfeits,avg_redirects
+301,results/checkpoints/dqn_multiseed_smoke_seed301.pt,random,random,2,dqn:results/checkpoints/dqn_multiseed_smoke_seed301.pt,random,1.0,1.0,0.0,59.5,14.5,20
+301,results/checkpoints/dqn_multiseed_smoke_seed301.pt,heuristic,heuristic,2,dqn:results/checkpoints/dqn_multiseed_smoke_seed301.pt,heuristic,0.0,-1.0,0.0,16.5,4,5
+301,results/checkpoints/dqn_multiseed_smoke_seed301.pt,mcts20c6,mcts:20:6,1,dqn:results/checkpoints/dqn_multiseed_smoke_seed301.pt,mcts:20,0.0,-1.0,0.0,8,3,2
