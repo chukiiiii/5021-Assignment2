@@ -59,8 +59,8 @@ def play_verbose(x_spec: str, o_spec: str, seed: int, stochastic: bool) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--x", default="human", help="human | random | qtable:path")
-    parser.add_argument("--o", default="random", help="human | random | qtable:path")
+    parser.add_argument("--x", default="human", help="human | random | heuristic | qtable:path")
+    parser.add_argument("--o", default="random", help="human | random | heuristic | qtable:path")
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--deterministic", action="store_true")
     parser.add_argument("--quiet", action="store_true", help="print only final transcript summary")

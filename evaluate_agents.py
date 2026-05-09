@@ -128,8 +128,8 @@ def save_html(path: str, summary: MatchSummary, rows: list[dict[str, object]]) -
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--agent-a", default="random", help="random | qtable:path")
-    parser.add_argument("--agent-b", default="random", help="random | qtable:path")
+    parser.add_argument("--agent-a", default="random", help="random | heuristic | qtable:path")
+    parser.add_argument("--agent-b", default="random", help="random | heuristic | qtable:path")
     parser.add_argument("--games", type=int, default=100)
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--deterministic", action="store_true")

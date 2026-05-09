@@ -47,7 +47,7 @@ The repository was empty when work started, so this handoff contains both the in
 - `test_super_tictactoe.py`
   - Unit tests for board size, invalid cells, corner outside probability, horizontal/vertical/diagonal wins, and forfeited turn passing.
 - `agents.py`
-  - Reusable agent interface and built-in `random`, `qtable:path`, and `human` agents.
+  - Reusable agent interface and built-in `random`, `heuristic`, `qtable:path`, and `human` agents.
 - `match.py`
   - Reusable single-game runner and multi-game win-rate evaluator.
 - `evaluate_agents.py`
@@ -184,6 +184,7 @@ Play or display a single game:
 ```bash
 python3 play_game.py --x human --o qtable:q_table.json
 python3 play_game.py --x random --o random --quiet
+python3 play_game.py --x human --o heuristic
 ```
 
 ## Suggested Next Steps
@@ -209,6 +210,7 @@ python3 play_game.py --x random --o random --quiet
 - Added reusable win-rate testing and display infrastructure.
 - Agent specs supported today:
   - `random`
+  - `heuristic`
   - `qtable:path/to/q_table.json`
   - `human`
 - Future PPO, MCTS, heuristic, or SFT policies should implement the same shape as `Agent.select_action(env)` in `agents.py`.
@@ -216,3 +218,24 @@ python3 play_game.py --x random --o random --quiet
   - `python3 -m unittest -v`: passed, 10/10.
   - `python3 evaluate_agents.py --agent-a random --agent-b random --games 10 --seed 11 --deterministic --json-output eval_random.json --csv-output eval_random.csv --html-output eval_random.html`: passed.
   - `python3 play_game.py --x random --o random --seed 5 --deterministic --quiet`: passed.
+
+## 2026-05-09 Progress
+
+- Added the next planned optimization: a reusable `HeuristicAgent`.
+- The heuristic evaluates intended moves by averaging over stochastic placement outcomes, including redirects and forfeits.
+- Added `report.md` as the assignment report draft. It currently covers the problem definition, environment, baselines, heuristic optimization, evaluation framework, results, next steps, and limitations.
+- Added tests for heuristic immediate-win behavior and `make_agent("heuristic")`.
+- Verification:
+  - `python3 -m unittest -v`: passed, 12/12.
+  - `python3 evaluate_agents.py --agent-a heuristic --agent-b random --games 100 --seed 21 --json-output eval_heuristic_random.json --csv-output eval_heuristic_random.csv --html-output eval_heuristic_random.html`: heuristic won 100/100, avg turns 11.70.
+  - `python3 evaluate_agents.py --agent-a heuristic --agent-b qtable:q_table.json --games 100 --seed 31 --json-output eval_heuristic_qtable.json --csv-output eval_heuristic_qtable.csv --html-output eval_heuristic_qtable.html`: heuristic won 100/100, avg turns 12.14.
+- Generated reports:
+  - `eval_heuristic_random.json`
+  - `eval_heuristic_random.csv`
+  - `eval_heuristic_random.html`
+  - `eval_heuristic_qtable.json`
+  - `eval_heuristic_qtable.csv`
+  - `eval_heuristic_qtable.html`
+- Next best step:
+  - Implement MCTS using `heuristic` as rollout policy.
+  - Alternatively implement DQN/PPO using the existing evaluator and `report.md` structure.

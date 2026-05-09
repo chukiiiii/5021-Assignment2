@@ -2,7 +2,9 @@ import os
 import tempfile
 import unittest
 
-from agents import QTableAgent, RandomAgent
+from agents import HeuristicAgent, QTableAgent, RandomAgent
+from agents import make_agent
+from super_tictactoe import X, SuperTicTacToeEnv
 from evaluate_agents import save_csv, save_html, save_json
 from match import evaluate_pair, results_dict
 
@@ -25,6 +27,19 @@ class MatchTests(unittest.TestCase):
             self.skipTest("q_table_smoke.json not available")
         agent = QTableAgent("q_table_smoke.json", seed=1)
         self.assertGreater(len(agent.q_table), 0)
+
+    def test_heuristic_takes_immediate_deterministic_win(self) -> None:
+        env = SuperTicTacToeEnv(stochastic=False)
+        env.board[8][0] = X
+        env.board[8][1] = X
+        env.board[8][2] = X
+        agent = HeuristicAgent(seed=1)
+        action = agent.select_action(env)
+        self.assertEqual(env.action_to_cell(action), (8, 3))
+
+    def test_make_agent_supports_heuristic(self) -> None:
+        agent = make_agent("heuristic", seed=1)
+        self.assertEqual(agent.name, "heuristic")
 
     def test_reports_are_written(self) -> None:
         summary, results = evaluate_pair(
