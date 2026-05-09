@@ -579,3 +579,46 @@ http://127.0.0.1:8765
   - Run PPO multi-seed diagnostics analogous to DQN.
   - Then compare DQN vs PPO under the same episode budget.
   - If both remain weak against heuristic/MCTS, generate expert trajectories for SFT/behavior cloning.
+
+## 2026-05-09 Longer PPO Multi-Seed Training
+
+- Added `train_ppo_multiseed.py`.
+- Purpose:
+  - Train PPO checkpoints across multiple seeds.
+  - Save per-seed reward history CSV/HTML.
+  - Save a combined multi-seed reward-curve HTML.
+  - Evaluate each checkpoint against random, heuristic, and MCTS.
+- Smoke command run successfully:
+  - `python3 train_ppo_multiseed.py --seeds 601 --episodes 4 --diagnostic-games 2 --mcts-games 1 --batch-size 8 --rollout-episodes 2 --update-epochs 1 --tag ppo_multiseed_smoke --progress`
+- Main command run successfully:
+  - `python3 train_ppo_multiseed.py --seeds 501 502 503 --episodes 120 --diagnostic-games 10 --mcts-games 4 --batch-size 64 --rollout-episodes 8 --update-epochs 4 --tag ppo_long --progress`
+- Main outputs:
+  - Checkpoints:
+    - `results/checkpoints/ppo_long_seed501.pt`
+    - `results/checkpoints/ppo_long_seed502.pt`
+    - `results/checkpoints/ppo_long_seed503.pt`
+  - Per-seed histories:
+    - `results/history/ppo_long_seed501_history.csv/html`
+    - `results/history/ppo_long_seed502_history.csv/html`
+    - `results/history/ppo_long_seed503_history.csv/html`
+  - Combined summaries:
+    - `results/summary/ppo_long_s3_e120_training.csv`
+    - `results/summary/ppo_long_s3_e120_reward_curves.html`
+    - `results/evaluations/ppo_long_s3_e120_diagnostics_detail.csv`
+    - `results/summary/ppo_long_s3_e120_diagnostics_summary.csv`
+    - `results/summary/ppo_long_s3_e120_diagnostics.html`
+- Training results:
+  - Seed 501: final rolling X reward 0.280, train X win rate 0.542, avg turns 62.08.
+  - Seed 502: final rolling X reward 0.120, train X win rate 0.558, avg turns 58.48.
+  - Seed 503: final rolling X reward -0.160, train X win rate 0.500, avg turns 61.57.
+- Diagnostic results:
+  - PPO vs random: mean win rate 0.933, mean reward 0.867 over 30 games.
+  - PPO vs heuristic: mean win rate 0.033, mean reward -0.933 over 30 games.
+  - PPO vs mcts:20:6: mean win rate 0.000, mean reward -1.000 over 12 games.
+- Interpretation:
+  - More PPO training clearly improves basic play against random.
+  - PPO outperformed the current DQN long run against random under a comparable 120-episode budget.
+  - PPO still does not reliably learn immediate blocking/tactical play from sparse terminal rewards.
+- Recommended next step:
+  - Generate heuristic/MCTS expert trajectories and add behavior cloning/SFT.
+  - Alternatively add reward shaping for immediate threat creation/blocking, then rerun PPO and DQN diagnostics.

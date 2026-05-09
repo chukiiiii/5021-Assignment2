@@ -1,0 +1,4 @@
+opponent,seeds,games_total,mean_win_rate,std_win_rate,mean_reward,std_reward,mean_turns,agent_a,agent_b
+random,1,2,0.5,0.0,0.0,0.0,75.0,ppo:results/checkpoints/ppo_multiseed_smoke_seed601.pt,random
+heuristic,1,2,0.0,0.0,-1.0,0.0,14.5,ppo:results/checkpoints/ppo_multiseed_smoke_seed601.pt,heuristic
+mcts20c6,1,1,0.0,0.0,-1.0,0.0,12.0,ppo:results/checkpoints/ppo_multiseed_smoke_seed601.pt,mcts:20

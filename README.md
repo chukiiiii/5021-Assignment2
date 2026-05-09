@@ -60,6 +60,12 @@ Train a short PPO smoke run:
 python3 train_ppo.py --episodes 30 --eval-games 10 --seed 403 --batch-size 32 --rollout-episodes 5 --update-epochs 3 --output results/checkpoints/ppo_stochastic_smoke.pt --history-csv results/history/ppo_stochastic_smoke_history.csv --history-html results/history/ppo_stochastic_smoke_history.html
 ```
 
+Train PPO across multiple seeds and run diagnostics:
+
+```bash
+python3 train_ppo_multiseed.py --seeds 501 502 503 --episodes 120 --diagnostic-games 10 --mcts-games 4 --batch-size 64 --rollout-episodes 8 --update-epochs 4 --tag ppo_long --progress
+```
+
 Train a short DQN smoke run:
 
 ```bash

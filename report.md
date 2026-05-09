@@ -399,7 +399,53 @@ Interpretation:
 - The agent still loses quickly to heuristic and MCTS, which means it has not learned reliable immediate-win or blocking tactics from self-play alone.
 - The next improvement should not just be "more episodes"; it should also improve the learning signal, for example by using curriculum opponents, prioritized replay, shaped auxiliary rewards, or supervised pretraining from heuristic/MCTS trajectories.
 
-## 9. Interactive Game UI
+## 9. Longer PPO Training and Diagnostics
+
+I added `train_ppo_multiseed.py` to run the same style of long multi-seed experiment for PPO.
+
+Command used:
+
+```bash
+python3 train_ppo_multiseed.py --seeds 501 502 503 --episodes 120 --diagnostic-games 10 --mcts-games 4 --batch-size 64 --rollout-episodes 8 --update-epochs 4 --tag ppo_long --progress
+```
+
+Generated outputs:
+
+- `results/checkpoints/ppo_long_seed501.pt`
+- `results/checkpoints/ppo_long_seed502.pt`
+- `results/checkpoints/ppo_long_seed503.pt`
+- `results/history/ppo_long_seed501_history.html`
+- `results/history/ppo_long_seed502_history.html`
+- `results/history/ppo_long_seed503_history.html`
+- `results/summary/ppo_long_s3_e120_reward_curves.html`
+- `results/summary/ppo_long_s3_e120_training.csv`
+- `results/summary/ppo_long_s3_e120_diagnostics_summary.csv`
+- `results/summary/ppo_long_s3_e120_diagnostics.html`
+
+Training summary:
+
+| Seed | Episodes | X win rate | O win rate | Avg turns | Final rolling X reward |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 501 | 120 | 0.542 | 0.458 | 62.08 | 0.280 |
+| 502 | 120 | 0.558 | 0.442 | 58.48 | 0.120 |
+| 503 | 120 | 0.500 | 0.500 | 61.57 | -0.160 |
+
+Diagnostic evaluation:
+
+| Opponent | Seeds | Games | Mean PPO win rate | Mean reward | Mean turns |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Random | 3 | 30 | 0.933 | 0.867 | 37.70 |
+| Heuristic | 3 | 30 | 0.033 | -0.933 | 11.60 |
+| MCTS-20 top6 | 3 | 12 | 0.000 | -1.000 | 14.17 |
+
+Interpretation:
+
+- PPO improves substantially against random when trained longer, reaching 28/30 wins in this diagnostic set.
+- PPO is stronger than the current DQN long run against random under this comparable 120-episode budget.
+- PPO still almost always loses to the tactical heuristic and always loses to MCTS in this test.
+- This suggests that increasing training episodes helps with basic play, but does not by itself teach robust threat blocking.
+
+## 10. Interactive Game UI
 
 I added a local browser interface in `game_ui.py` so that the command-line interaction can be used as a visual game board.
 
@@ -440,7 +486,7 @@ Verification:
 - `GET /api/state` returns the 96 playable cells.
 - `POST /api/new`, `POST /api/move`, and `POST /api/agent-step` update the game state correctly.
 
-## 10. Next Steps
+## 11. Next Steps
 
 The next recommended steps are:
 
@@ -456,7 +502,7 @@ Experiment artifacts are now organized under `results/`:
 - `results/history/`
 - `results/evaluations/`
 
-## 11. Limitations
+## 12. Limitations
 
 The current implementation still has several limitations:
 
