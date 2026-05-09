@@ -1,0 +1,11 @@
+game_index,x_agent,o_agent,winner,winner_agent,turns,forfeits,redirects,agent_a_reward,agent_b_reward,agent_a_cumulative_reward,agent_b_cumulative_reward,agent_a_rolling_reward,agent_b_rolling_reward
+0,ppo:results/checkpoints/ppo_stochastic_smoke.pt,random,O,random,64,12,18,-1.0,1.0,-1.0,1.0,-1.0,1.0
+1,random,ppo:results/checkpoints/ppo_stochastic_smoke.pt,O,ppo:results/checkpoints/ppo_stochastic_smoke.pt,38,7,15,1.0,-1.0,0.0,0.0,0.0,0.0
+2,ppo:results/checkpoints/ppo_stochastic_smoke.pt,random,O,random,42,7,13,-1.0,1.0,-1.0,1.0,-0.3333333333333333,0.3333333333333333
+3,random,ppo:results/checkpoints/ppo_stochastic_smoke.pt,O,ppo:results/checkpoints/ppo_stochastic_smoke.pt,42,8,12,1.0,-1.0,0.0,0.0,0.0,0.0
+4,ppo:results/checkpoints/ppo_stochastic_smoke.pt,random,X,ppo:results/checkpoints/ppo_stochastic_smoke.pt,61,14,12,1.0,-1.0,1.0,-1.0,0.2,-0.2
+5,random,ppo:results/checkpoints/ppo_stochastic_smoke.pt,O,ppo:results/checkpoints/ppo_stochastic_smoke.pt,56,15,12,1.0,-1.0,2.0,-2.0,0.3333333333333333,-0.3333333333333333
+6,ppo:results/checkpoints/ppo_stochastic_smoke.pt,random,X,ppo:results/checkpoints/ppo_stochastic_smoke.pt,25,4,6,1.0,-1.0,3.0,-3.0,0.42857142857142855,-0.42857142857142855
+7,random,ppo:results/checkpoints/ppo_stochastic_smoke.pt,X,random,63,12,9,-1.0,1.0,2.0,-2.0,0.25,-0.25
+8,ppo:results/checkpoints/ppo_stochastic_smoke.pt,random,O,random,76,19,22,-1.0,1.0,1.0,-1.0,0.1111111111111111,-0.1111111111111111
+9,random,ppo:results/checkpoints/ppo_stochastic_smoke.pt,O,ppo:results/checkpoints/ppo_stochastic_smoke.pt,56,14,23,1.0,-1.0,2.0,-2.0,0.2,-0.2

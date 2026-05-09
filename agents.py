@@ -103,6 +103,28 @@ class DQNAgent:
             return self.masked_argmax(q_values, mask)
 
 
+class PPOAgent:
+    def __init__(
+        self,
+        path: str,
+        seed: int | None = None,
+        name: str | None = None,
+    ) -> None:
+        from ppo_model import load_checkpoint, select_greedy_action
+
+        self.path = path
+        self.name = name or f"ppo:{path}"
+        self.random = random.Random(seed)
+        self.model, self.metadata = load_checkpoint(path)
+        self.select_greedy_action = select_greedy_action
+
+    def reset(self) -> None:
+        pass
+
+    def select_action(self, env: SuperTicTacToeEnv) -> int:
+        return self.select_greedy_action(self.model, env)
+
+
 LINES_BY_CELL: dict[tuple[int, int], list[tuple[tuple[int, int], ...]]] = {
     cell: [] for cell in VALID_CELLS
 }
@@ -555,6 +577,7 @@ def make_agent(spec: str, seed: int | None = None) -> Agent:
     - `mcts`, `mcts:simulations`, or `mcts:simulations:max_candidates`
     - `qtable:path/to/q_table.json`
     - `dqn:path/to/checkpoint.pt`
+    - `ppo:path/to/checkpoint.pt`
     - `human`
     """
     if spec == "random":
@@ -580,6 +603,9 @@ def make_agent(spec: str, seed: int | None = None) -> Agent:
     if spec.startswith("dqn:"):
         path = spec.split(":", 1)[1]
         return DQNAgent(path=path, seed=seed)
+    if spec.startswith("ppo:"):
+        path = spec.split(":", 1)[1]
+        return PPOAgent(path=path, seed=seed)
     raise ValueError(f"unknown agent spec: {spec}")
 
 

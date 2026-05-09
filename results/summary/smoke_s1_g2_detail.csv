@@ -1,0 +1,6 @@
+experiment,agent_a,agent_b,seed,games,stochastic,agent_a_win_rate,agent_b_win_rate,draw_rate,agent_a_reward,avg_turns,avg_forfeits,avg_redirects,elapsed_seconds
+random_vs_random,A:random,B:random,11,2,True,0.0,1.0,0.0,-1.0,66.5,14.5,17.5,0.006799541995860636
+heuristic_vs_random,heuristic,random,11,2,True,1.0,0.0,0.0,1.0,11.5,1,6,1.2329999170033261
+mcts20c6_vs_random,mcts:20,random,11,1,True,1.0,0.0,0.0,1.0,13,0,6,6.739045916998293
+dqn_stochastic_vs_random,dqn:results/checkpoints/dqn_stochastic_smoke.pt,random,11,2,True,1.0,0.0,0.0,1.0,47.5,10.5,11.5,0.04003220796585083
+ppo_stochastic_vs_random,ppo:results/checkpoints/ppo_stochastic_smoke.pt,random,11,2,True,0.0,1.0,0.0,-1.0,66.5,11.5,20.5,0.05291391699574888

@@ -499,6 +499,7 @@ INDEX_HTML = r"""<!doctype html>
               <option value="qtable:results/checkpoints/q_table.json">qtable:results/checkpoints/q_table.json</option>
               <option value="dqn:results/checkpoints/dqn_stochastic_smoke.pt">dqn:results/checkpoints/dqn_stochastic_smoke.pt</option>
               <option value="dqn:results/checkpoints/dqn_smoke.pt">dqn:results/checkpoints/dqn_smoke.pt</option>
+              <option value="ppo:results/checkpoints/ppo_stochastic_smoke.pt">ppo:results/checkpoints/ppo_stochastic_smoke.pt</option>
             </select>
           </label>
           <label>O Player
@@ -511,6 +512,7 @@ INDEX_HTML = r"""<!doctype html>
               <option value="qtable:results/checkpoints/q_table.json">qtable:results/checkpoints/q_table.json</option>
               <option value="dqn:results/checkpoints/dqn_stochastic_smoke.pt">dqn:results/checkpoints/dqn_stochastic_smoke.pt</option>
               <option value="dqn:results/checkpoints/dqn_smoke.pt">dqn:results/checkpoints/dqn_smoke.pt</option>
+              <option value="ppo:results/checkpoints/ppo_stochastic_smoke.pt">ppo:results/checkpoints/ppo_stochastic_smoke.pt</option>
             </select>
           </label>
         </div>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Super Tic-Tac-Toe Match Report</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; margin: 32px; color: #222; }
+    h1 { margin-bottom: 4px; }
+    .subtle { color: #666; margin-top: 0; }
+    .metric { display: grid; grid-template-columns: 160px 1fr 80px; gap: 12px; align-items: center; margin: 10px 0; }
+    .track { height: 14px; background: #e8e8e8; border-radius: 7px; overflow: hidden; }
+    .fill { height: 100%; background: #2aa7df; }
+    table { border-collapse: collapse; width: 100%; margin-top: 24px; font-size: 14px; }
+    th, td { border-bottom: 1px solid #ddd; padding: 8px 10px; text-align: left; }
+    th { background: #f5f5f5; }
+    .chart { margin-top: 24px; max-width: 780px; }
+    svg { width: 100%; height: auto; border: 1px solid #ddd; background: #fff; }
+    .axis { stroke: #bbb; stroke-width: 1; }
+    .line { fill: none; stroke: #2aa7df; stroke-width: 3; }
+    .caption { color: #666; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>Super Tic-Tac-Toe Match Report</h1>
+  <p class="subtle">ppo:results/checkpoints/ppo_stochastic_smoke.pt vs heuristic, 10 games</p>
+  <div class='metric'><div class='label'>ppo:results/checkpoints/ppo_stochastic_smoke.pt</div><div class='track'><div class='fill' style='width: 0.00%'></div></div><div class='rate'>0.00%</div></div>
+<div class='metric'><div class='label'>heuristic</div><div class='track'><div class='fill' style='width: 100.00%'></div></div><div class='rate'>100.00%</div></div>
+<div class='metric'><div class='label'>draw</div><div class='track'><div class='fill' style='width: 0.00%'></div></div><div class='rate'>0.00%</div></div>
+  <p>Average turns: 12.70. Average forfeits: 1.80. Average redirects: 4.70.</p>
+  <div class="chart">
+    <h2>ppo:results/checkpoints/ppo_stochastic_smoke.pt cumulative reward</h2>
+    <svg viewBox='0 0 760 220' role='img'><line class='axis' x1='28' y1='28.0' x2='732' y2='28.0' /><polyline class='line' points='28.0,44.4 106.2,60.8 184.4,77.2 262.7,93.6 340.9,110.0 419.1,126.4 497.3,142.8 575.6,159.2 653.8,175.6 732.0,192.0' /><text x='28' y='18'>max 0</text><text x='28' y='212'>min -10</text></svg>
+    <p class="caption">Each game gives +1 for a win, -1 for a loss, and 0 for a draw from ppo:results/checkpoints/ppo_stochastic_smoke.pt's perspective.</p>
+  </div>
+  <table>
+    <thead>
+      <tr><th>Game</th><th>X Agent</th><th>O Agent</th><th>Winner</th><th>Winner Agent</th><th>Turns</th><th>Forfeits</th><th>Redirects</th><th>A Reward</th><th>A Cumulative</th></tr>
+    </thead>
+    <tbody><tr><td>0</td><td>ppo:results/checkpoints/ppo_stochastic_smoke.pt</td><td>heuristic</td><td>O</td><td>heuristic</td><td>24</td><td>2</td><td>11</td><td>-1</td><td>-1</td></tr>
+<tr><td>1</td><td>heuristic</td><td>ppo:results/checkpoints/ppo_stochastic_smoke.pt</td><td>X</td><td>heuristic</td><td>9</td><td>2</td><td>2</td><td>-1</td><td>-2</td></tr>
+<tr><td>2</td><td>ppo:results/checkpoints/ppo_stochastic_smoke.pt</td><td>heuristic</td><td>O</td><td>heuristic</td><td>18</td><td>2</td><td>8</td><td>-1</td><td>-3</td></tr>
+<tr><td>3</td><td>heuristic</td><td>ppo:results/checkpoints/ppo_stochastic_smoke.pt</td><td>X</td><td>heuristic</td><td>9</td><td>2</td><td>3</td><td>-1</td><td>-4</td></tr>
+<tr><td>4</td><td>ppo:results/checkpoints/ppo_stochastic_smoke.pt</td><td>heuristic</td><td>O</td><td>heuristic</td><td>10</td><td>2</td><td>2</td><td>-1</td><td>-5</td></tr>
+<tr><td>5</td><td>heuristic</td><td>ppo:results/checkpoints/ppo_stochastic_smoke.pt</td><td>X</td><td>heuristic</td><td>9</td><td>3</td><td>1</td><td>-1</td><td>-6</td></tr>
+<tr><td>6</td><td>ppo:results/checkpoints/ppo_stochastic_smoke.pt</td><td>heuristic</td><td>O</td><td>heuristic</td><td>10</td><td>0</td><td>3</td><td>-1</td><td>-7</td></tr>
+<tr><td>7</td><td>heuristic</td><td>ppo:results/checkpoints/ppo_stochastic_smoke.pt</td><td>X</td><td>heuristic</td><td>7</td><td>0</td><td>2</td><td>-1</td><td>-8</td></tr>
+<tr><td>8</td><td>ppo:results/checkpoints/ppo_stochastic_smoke.pt</td><td>heuristic</td><td>O</td><td>heuristic</td><td>20</td><td>2</td><td>11</td><td>-1</td><td>-9</td></tr>
+<tr><td>9</td><td>heuristic</td><td>ppo:results/checkpoints/ppo_stochastic_smoke.pt</td><td>X</td><td>heuristic</td><td>11</td><td>3</td><td>4</td><td>-1</td><td>-10</td></tr></tbody>
+  </table>
+</body>
+</html>

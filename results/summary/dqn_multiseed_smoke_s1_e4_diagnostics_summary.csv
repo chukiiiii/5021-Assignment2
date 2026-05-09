@@ -1,0 +1,4 @@
+opponent,seeds,games_total,mean_win_rate,std_win_rate,mean_reward,std_reward,mean_turns,agent_a,agent_b
+random,1,2,1.0,0.0,1.0,0.0,59.5,dqn:results/checkpoints/dqn_multiseed_smoke_seed301.pt,random
+heuristic,1,2,0.0,0.0,-1.0,0.0,16.5,dqn:results/checkpoints/dqn_multiseed_smoke_seed301.pt,heuristic
+mcts20c6,1,1,0.0,0.0,-1.0,0.0,8.0,dqn:results/checkpoints/dqn_multiseed_smoke_seed301.pt,mcts:20

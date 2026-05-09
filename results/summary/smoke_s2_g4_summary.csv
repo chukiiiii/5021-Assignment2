@@ -1,0 +1,5 @@
+experiment,agent_a,agent_b,seeds,games_total,mean_win_rate,std_win_rate,mean_reward,std_reward,mean_turns,mean_forfeits,mean_redirects,total_elapsed_seconds
+random_vs_random,A:random,B:random,2,8,0.625,0.1767766952966369,0.25,0.3535533905932738,61.875,15.0,17.75,0.025949165923520923
+heuristic_vs_random,heuristic,random,2,8,1.0,0.0,1.0,0.0,11.25,1.0,3.625,5.045450042001903
+mcts20c6_vs_random,mcts:20,random,2,4,1.0,0.0,1.0,0.0,13.5,2.0,4.5,26.808811584021896
+dqn_stochastic_vs_random,dqn:results/checkpoints/dqn_stochastic_smoke.pt,random,2,8,1.0,0.0,1.0,0.0,54.25,12.375,16.0,0.19803899998078123

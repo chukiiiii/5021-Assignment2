@@ -443,3 +443,139 @@ http://127.0.0.1:8765
   - `python3 -m unittest -v`: passed, 25/25.
   - `python3 evaluate_agents.py --agent-a qtable:results/checkpoints/q_table_smoke.json --agent-b random --games 2 --seed 121 --deterministic`: passed.
   - `python3 evaluate_agents.py --agent-a dqn:results/checkpoints/dqn_stochastic_smoke.pt --agent-b random --games 2 --seed 120 --json-output results/evaluations/eval_path_smoke.json --csv-output results/evaluations/eval_path_smoke.csv --html-output results/evaluations/eval_path_smoke.html`: passed.
+
+## 2026-05-09 Multi-Seed Experiment Runner
+
+- Added `run_experiments.py` so common comparisons can be rerun without manually launching many `evaluate_agents.py` commands.
+- Presets:
+  - `--preset smoke`: tiny sanity run.
+  - `--preset full`: broader report-oriented comparison.
+- Important arguments:
+  - `--seeds 1 2 3`
+  - `--games 10`
+  - `--mcts-games 5`
+  - `--output-dir results/summary`
+  - `--progress`
+- Smoke command run successfully:
+  - `python3 run_experiments.py --preset smoke --seeds 1 2 --games 4 --mcts-games 2 --progress`
+  - Outputs:
+    - `results/summary/smoke_s2_g4_detail.csv`
+    - `results/summary/smoke_s2_g4_summary.csv`
+    - `results/summary/smoke_s2_g4_summary.html`
+- Report-sized command run successfully:
+  - `python3 run_experiments.py --preset full --seeds 1 2 3 --games 10 --mcts-games 5 --progress`
+  - Outputs:
+    - `results/summary/full_s3_g10_detail.csv`
+    - `results/summary/full_s3_g10_summary.csv`
+    - `results/summary/full_s3_g10_summary.html`
+- Report-sized results:
+  - random vs random: win rate 0.433, mean reward -0.133 over 30 games.
+  - qtable vs random: win rate 0.433, mean reward -0.133 over 30 games.
+  - heuristic vs random: win rate 1.000, mean reward 1.000 over 30 games.
+  - mcts:20:6 vs random: win rate 1.000, mean reward 1.000 over 15 games.
+  - mcts:50:6 vs heuristic: win rate 0.467, mean reward -0.067 over 15 games.
+  - dqn stochastic smoke vs random: win rate 0.800, mean reward 0.600 over 30 games.
+  - dqn stochastic smoke vs heuristic: win rate 0.000, mean reward -1.000 over 30 games.
+- Interpretation:
+  - Tabular Q-learning is not improving beyond random in this setup.
+  - Heuristic remains the strongest cheap baseline.
+  - MCTS is strong against random, but current simulation budget is only roughly competitive with heuristic.
+  - DQN has learned useful play against random, but it is still too weak tactically against heuristic.
+- `report.md` was updated with these results under "Multi-Seed Experiment Summary".
+- `README.md` was updated with the reusable experiment command.
+- Next best step:
+  - Continue with longer DQN training and more diagnostic evaluation:
+    - plot reward curves across seeds,
+    - evaluate against random, heuristic, and MCTS,
+    - consider SFT from heuristic/MCTS trajectories if DQN remains sample-inefficient.
+
+## 2026-05-09 Longer DQN Multi-Seed Training
+
+- Added `train_dqn_multiseed.py`.
+- Purpose:
+  - Train DQN checkpoints across multiple seeds.
+  - Save per-seed reward history CSV/HTML.
+  - Save a combined multi-seed reward-curve HTML.
+  - Evaluate each checkpoint against random, heuristic, and MCTS.
+- Smoke command run successfully:
+  - `python3 train_dqn_multiseed.py --seeds 301 --episodes 4 --diagnostic-games 2 --mcts-games 1 --batch-size 8 --train-after 8 --target-update 20 --tag dqn_multiseed_smoke --progress`
+- Main command run successfully:
+  - `python3 train_dqn_multiseed.py --seeds 201 202 203 --episodes 120 --diagnostic-games 10 --mcts-games 4 --batch-size 32 --train-after 128 --target-update 200 --tag dqn_long --progress`
+- Main outputs:
+  - Checkpoints:
+    - `results/checkpoints/dqn_long_seed201.pt`
+    - `results/checkpoints/dqn_long_seed202.pt`
+    - `results/checkpoints/dqn_long_seed203.pt`
+  - Per-seed histories:
+    - `results/history/dqn_long_seed201_history.csv/html`
+    - `results/history/dqn_long_seed202_history.csv/html`
+    - `results/history/dqn_long_seed203_history.csv/html`
+  - Combined summaries:
+    - `results/summary/dqn_long_s3_e120_training.csv`
+    - `results/summary/dqn_long_s3_e120_reward_curves.html`
+    - `results/evaluations/dqn_long_s3_e120_diagnostics_detail.csv`
+    - `results/summary/dqn_long_s3_e120_diagnostics_summary.csv`
+    - `results/summary/dqn_long_s3_e120_diagnostics.html`
+- Training results:
+  - Seed 201: final rolling X reward 0.200, train X win rate 0.575, avg turns 56.01.
+  - Seed 202: final rolling X reward 0.080, train X win rate 0.475, avg turns 50.44.
+  - Seed 203: final rolling X reward -0.240, train X win rate 0.467, avg turns 56.88.
+- Diagnostic results:
+  - DQN vs random: mean win rate 0.767, mean reward 0.533 over 30 games.
+  - DQN vs heuristic: mean win rate 0.000, mean reward -1.000 over 30 games.
+  - DQN vs mcts:20:6: mean win rate 0.000, mean reward -1.000 over 12 games.
+- Interpretation:
+  - Longer DQN training is stronger than random overall, but unstable across seeds.
+  - Pure self-play DQN is not learning reliable tactical blocks/wins yet.
+  - Heuristic and MCTS beat it quickly, so the next improvement should focus on better learning signal rather than just more episodes.
+- Recommended next step:
+  - Generate expert trajectories from heuristic or MCTS.
+  - Add behavior cloning/SFT pretraining.
+  - Fine-tune with DQN or another RL method and rerun `train_dqn_multiseed.py` diagnostics.
+
+## 2026-05-09 PPO Baseline
+
+- Added PPO as the second neural RL method.
+- New files:
+  - `ppo_model.py`
+    - PPO actor-critic CNN.
+    - Reuses the same `3 x 12 x 12` state tensor and 96-action mask as DQN.
+    - Saves/loads `.pt` checkpoints.
+  - `train_ppo.py`
+    - Self-play rollout collection.
+    - Masked categorical policy.
+    - Clipped PPO objective.
+    - Value loss and entropy bonus.
+    - Reward history CSV/HTML output.
+  - `test_ppo.py`
+    - Forward-shape test.
+    - `ppo:path` checkpoint load and legal-action test.
+- Updated files:
+  - `agents.py`: supports `ppo:path/to/checkpoint.pt`.
+  - `run_experiments.py`: includes PPO smoke checkpoint comparisons in smoke/full presets.
+  - `game_ui.py`: includes `ppo:results/checkpoints/ppo_stochastic_smoke.pt` in dropdowns.
+  - `README.md`: documents PPO files and command.
+  - `report.md`: adds PPO smoke-test section.
+- PPO reward design:
+  - Current implementation uses terminal game outcome from each acting player's perspective.
+  - This keeps PPO comparable with pure DQN, but the reward signal is sparse.
+  - No hand-written tactical rules are used in PPO.
+- Smoke commands run successfully:
+  - Tiny path check:
+    - `python3 train_ppo.py --episodes 8 --eval-games 4 --seed 401 --batch-size 16 --rollout-episodes 4 --update-epochs 2 --output results/checkpoints/ppo_smoke.pt --history-csv results/history/ppo_smoke_history.csv --history-html results/history/ppo_smoke_history.html`
+    - Built-in eval: PPO 0.50 vs random over 4 games.
+  - Main smoke:
+    - `python3 train_ppo.py --episodes 30 --eval-games 10 --seed 403 --batch-size 32 --rollout-episodes 5 --update-epochs 3 --output results/checkpoints/ppo_stochastic_smoke.pt --history-csv results/history/ppo_stochastic_smoke_history.csv --history-html results/history/ppo_stochastic_smoke_history.html`
+    - Built-in eval: PPO 0.70 vs random over 10 games.
+  - Generic evaluator:
+    - `python3 evaluate_agents.py --agent-a ppo:results/checkpoints/ppo_stochastic_smoke.pt --agent-b random --games 10 --seed 404 --progress-every 5 --json-output results/evaluations/eval_ppo_stochastic_smoke_random.json --csv-output results/evaluations/eval_ppo_stochastic_smoke_random.csv --html-output results/evaluations/eval_ppo_stochastic_smoke_random.html`
+      - PPO won 6/10, avg reward 0.20, avg turns 52.30.
+    - `python3 evaluate_agents.py --agent-a ppo:results/checkpoints/ppo_stochastic_smoke.pt --agent-b heuristic --games 10 --seed 405 --progress-every 5 --json-output results/evaluations/eval_ppo_stochastic_smoke_heuristic.json --csv-output results/evaluations/eval_ppo_stochastic_smoke_heuristic.csv --html-output results/evaluations/eval_ppo_stochastic_smoke_heuristic.html`
+      - PPO won 0/10, avg reward -1.00, avg turns 12.70.
+- Verification:
+  - `python3 -m unittest -v`: passed, 27/27 after PPO was added.
+  - `python3 run_experiments.py --preset smoke --seeds 11 --games 2 --mcts-games 1 --output-dir results/summary --progress`: passed and generated `results/summary/smoke_s1_g2_summary.html`; this verifies PPO is wired into grouped experiments.
+- Next best step:
+  - Run PPO multi-seed diagnostics analogous to DQN.
+  - Then compare DQN vs PPO under the same episode budget.
+  - If both remain weak against heuristic/MCTS, generate expert trajectories for SFT/behavior cloning.
