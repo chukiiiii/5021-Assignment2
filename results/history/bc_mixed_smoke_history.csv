@@ -1,0 +1,2 @@
+epoch,train_loss,train_top1_accuracy,train_legal_action_accuracy,val_loss,val_top1_accuracy,val_legal_action_accuracy
+1,4.4959776401519775,0.18181818181818182,1.0,4.3699798583984375,0.0,1.0

@@ -14,8 +14,11 @@
 - `train_dqn_multiseed.py`: multi-seed DQN training and diagnostic evaluation.
 - `ppo_model.py`: PPO actor-critic model and checkpoint helpers.
 - `train_ppo.py`: PPO training script.
+- `generate_expert_data.py`: mixed heuristic/MCTS expert data generator.
+- `train_bc.py`: behavior cloning/SFT training script.
 - `test_*.py`: unit and smoke tests.
 - `results/checkpoints/`: trained Q-table and DQN checkpoints.
+- `results/expert/`: expert datasets for behavior cloning.
 - `results/history/`: reward history CSV/HTML files.
 - `results/evaluations/`: evaluation JSON/CSV/HTML reports.
 - `HANDOFF.md`: full handoff log for the next agent.
@@ -64,6 +67,19 @@ Train PPO across multiple seeds and run diagnostics:
 
 ```bash
 python3 train_ppo_multiseed.py --seeds 501 502 503 --episodes 120 --diagnostic-games 10 --mcts-games 4 --batch-size 64 --rollout-episodes 8 --update-epochs 4 --tag ppo_long --progress
+```
+
+Generate mixed expert data and train behavior cloning:
+
+```bash
+python3 generate_expert_data.py
+python3 train_bc.py
+```
+
+Fine-tune PPO from the behavior-cloning checkpoint:
+
+```bash
+python3 train_ppo_multiseed.py --seeds 801 802 803 --episodes 120 --diagnostic-games 10 --mcts-games 4 --batch-size 64 --rollout-episodes 8 --update-epochs 4 --init-checkpoint results/checkpoints/bc_mixed.pt --tag sft_ppo --progress
 ```
 
 Train a short DQN smoke run:

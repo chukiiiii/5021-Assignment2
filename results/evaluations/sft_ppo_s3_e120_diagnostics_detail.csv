@@ -1,0 +1,10 @@
+seed,checkpoint,opponent,opponent_spec,games,agent_a,agent_b,win_rate,avg_reward,draw_rate,avg_turns,avg_forfeits,avg_redirects
+801,results/checkpoints/sft_ppo_seed801.pt,random,random,10,ppo:results/checkpoints/sft_ppo_seed801.pt,random,1.0,1.0,0.0,15.9,2.1,6.7
+801,results/checkpoints/sft_ppo_seed801.pt,heuristic,heuristic,10,ppo:results/checkpoints/sft_ppo_seed801.pt,heuristic,0.1,-0.8,0.0,12,1,5.5
+801,results/checkpoints/sft_ppo_seed801.pt,mcts20c6,mcts:20:6,4,ppo:results/checkpoints/sft_ppo_seed801.pt,mcts:20,0.25,-0.5,0.0,11.75,0.25,6.75
+802,results/checkpoints/sft_ppo_seed802.pt,random,random,10,ppo:results/checkpoints/sft_ppo_seed802.pt,random,0.9,0.8,0.0,16.6,1.9,6.7
+802,results/checkpoints/sft_ppo_seed802.pt,heuristic,heuristic,10,ppo:results/checkpoints/sft_ppo_seed802.pt,heuristic,0.3,-0.39999999999999997,0.0,13,1.3,5.9
+802,results/checkpoints/sft_ppo_seed802.pt,mcts20c6,mcts:20:6,4,ppo:results/checkpoints/sft_ppo_seed802.pt,mcts:20,0.5,0.0,0.0,12.5,1,6.5
+803,results/checkpoints/sft_ppo_seed803.pt,random,random,10,ppo:results/checkpoints/sft_ppo_seed803.pt,random,1.0,1.0,0.0,24.1,3.1,9
+803,results/checkpoints/sft_ppo_seed803.pt,heuristic,heuristic,10,ppo:results/checkpoints/sft_ppo_seed803.pt,heuristic,0.3,-0.39999999999999997,0.0,14,1.1,5.9
+803,results/checkpoints/sft_ppo_seed803.pt,mcts20c6,mcts:20:6,4,ppo:results/checkpoints/sft_ppo_seed803.pt,mcts:20,0.0,-1.0,0.0,11,0.25,5.25

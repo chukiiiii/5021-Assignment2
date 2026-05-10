@@ -286,6 +286,7 @@ def main() -> None:
     parser.add_argument("--entropy-coef", type=float, default=0.01)
     parser.add_argument("--max-turns", type=int, default=240)
     parser.add_argument("--deterministic", action="store_true")
+    parser.add_argument("--init-checkpoint")
     parser.add_argument("--tag", default="ppo_long")
     parser.add_argument("--progress", action="store_true")
     args = parser.parse_args()
@@ -320,6 +321,7 @@ def main() -> None:
             entropy_coef=args.entropy_coef,
             max_turns=args.max_turns,
             device=device,
+            init_checkpoint=args.init_checkpoint,
         )
         elapsed = perf_counter() - start
         metadata = {
@@ -327,6 +329,7 @@ def main() -> None:
             "stochastic": stochastic,
             "seed": seed,
             "episodes": args.episodes,
+            "init_checkpoint": args.init_checkpoint,
             "note": "Multi-seed PPO actor-critic baseline with no hand-written tactical rules.",
         }
         save_checkpoint(str(checkpoint_path), model.cpu(), metadata)

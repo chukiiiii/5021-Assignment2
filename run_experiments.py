@@ -32,6 +32,11 @@ EXPERIMENTS = [
     Experiment("dqn_stochastic_vs_heuristic", "dqn:results/checkpoints/dqn_stochastic_smoke.pt", "heuristic"),
     Experiment("ppo_stochastic_vs_random", "ppo:results/checkpoints/ppo_stochastic_smoke.pt", "random"),
     Experiment("ppo_stochastic_vs_heuristic", "ppo:results/checkpoints/ppo_stochastic_smoke.pt", "heuristic"),
+    Experiment("bc_mixed_vs_random", "ppo:results/checkpoints/bc_mixed.pt", "random"),
+    Experiment("bc_mixed_vs_heuristic", "ppo:results/checkpoints/bc_mixed.pt", "heuristic"),
+    Experiment("sft_ppo_vs_random", "ppo:results/checkpoints/sft_ppo_seed801.pt", "random"),
+    Experiment("sft_ppo_vs_heuristic", "ppo:results/checkpoints/sft_ppo_seed801.pt", "heuristic"),
+    Experiment("sft_ppo_vs_mcts20c6", "ppo:results/checkpoints/sft_ppo_seed801.pt", "mcts:20:6"),
 ]
 
 SMOKE_EXPERIMENTS = [

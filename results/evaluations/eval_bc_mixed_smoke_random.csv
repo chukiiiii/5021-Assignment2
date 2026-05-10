@@ -1,0 +1,3 @@
+game_index,x_agent,o_agent,winner,winner_agent,turns,forfeits,redirects,agent_a_reward,agent_b_reward,agent_a_cumulative_reward,agent_b_cumulative_reward,agent_a_rolling_reward,agent_b_rolling_reward
+0,ppo:results/checkpoints/bc_mixed_smoke.pt,random,X,ppo:results/checkpoints/bc_mixed_smoke.pt,17,1,7,1.0,-1.0,1.0,-1.0,1.0,-1.0
+1,random,ppo:results/checkpoints/bc_mixed_smoke.pt,O,ppo:results/checkpoints/bc_mixed_smoke.pt,14,0,4,1.0,-1.0,2.0,-2.0,1.0,-1.0

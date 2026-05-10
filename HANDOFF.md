@@ -622,3 +622,81 @@ http://127.0.0.1:8765
 - Recommended next step:
   - Generate heuristic/MCTS expert trajectories and add behavior cloning/SFT.
   - Alternatively add reward shaping for immediate threat creation/blocking, then rerun PPO and DQN diagnostics.
+
+## 2026-05-10 Mixed Expert Data, Behavior Cloning, and SFT-PPO
+
+- Implemented the next optimization: mixed expert data plus SFT/behavior cloning before PPO fine-tuning.
+- New files:
+  - `generate_expert_data.py`
+    - Generates mixed heuristic/MCTS trajectories.
+    - Saves tensors and metadata to `results/expert/mixed_expert.pt`.
+    - Saves source summary to `results/expert/mixed_expert_summary.csv`.
+  - `train_bc.py`
+    - Trains `PPOActorCritic` policy with masked cross entropy.
+    - Uses an 80/20 train/validation split.
+    - Saves a PPO-compatible checkpoint to `results/checkpoints/bc_mixed.pt`.
+- Updated files:
+  - `train_ppo.py`: added `--init-checkpoint`.
+  - `train_ppo_multiseed.py`: added `--init-checkpoint`.
+  - `run_experiments.py`: added BC and SFT-PPO comparisons in the full preset.
+  - `README.md`: added expert data, BC, and SFT-PPO commands.
+  - `report.md`: added SFT/BC and SFT-PPO result section.
+- Smoke checks:
+  - `python3 generate_expert_data.py --heuristic-games 2 --mcts-games 1 --output results/expert/mixed_expert_smoke.pt --summary results/expert/mixed_expert_smoke_summary.csv`
+    - Passed, generated 28 samples.
+  - `python3 train_bc.py --data results/expert/mixed_expert_smoke.pt --epochs 1 --batch-size 16 --output results/checkpoints/bc_mixed_smoke.pt --history-csv results/history/bc_mixed_smoke_history.csv --history-html results/history/bc_mixed_smoke_history.html`
+    - Passed, produced a PPO-compatible checkpoint.
+  - `python3 evaluate_agents.py --agent-a ppo:results/checkpoints/bc_mixed_smoke.pt --agent-b random --games 2 --seed 713 --json-output results/evaluations/eval_bc_mixed_smoke_random.json --csv-output results/evaluations/eval_bc_mixed_smoke_random.csv --html-output results/evaluations/eval_bc_mixed_smoke_random.html`
+    - Passed, confirms `ppo:path` loads BC checkpoints.
+- Formal expert data:
+  - Command: `python3 generate_expert_data.py`
+  - Output:
+    - `results/expert/mixed_expert.pt`
+    - `results/expert/mixed_expert_summary.csv`
+  - Summary:
+    - Heuristic self-play: 200 games, 2288 samples, X win rate 0.610, O win rate 0.390, avg turns 11.44.
+    - MCTS-20 top6 vs heuristic: 30 games, 369 samples, X win rate 0.300, O win rate 0.700, avg turns 12.30.
+    - Total samples: 2657.
+- Behavior cloning:
+  - Command: `python3 train_bc.py`
+  - Output:
+    - `results/checkpoints/bc_mixed.pt`
+    - `results/history/bc_mixed_history.csv`
+    - `results/history/bc_mixed_history.html`
+  - Result:
+    - validation top-1 accuracy 0.645.
+    - validation legal action accuracy 1.000.
+- SFT-only evaluation:
+  - `python3 evaluate_agents.py --agent-a ppo:results/checkpoints/bc_mixed.pt --agent-b random --games 30 --seed 711 --json-output results/evaluations/eval_bc_mixed_random.json --csv-output results/evaluations/eval_bc_mixed_random.csv --html-output results/evaluations/eval_bc_mixed_random.html --progress-every 10`
+    - BC won 29/30, avg reward 0.933, avg turns 17.20.
+  - `python3 evaluate_agents.py --agent-a ppo:results/checkpoints/bc_mixed.pt --agent-b heuristic --games 30 --seed 712 --json-output results/evaluations/eval_bc_mixed_heuristic.json --csv-output results/evaluations/eval_bc_mixed_heuristic.csv --html-output results/evaluations/eval_bc_mixed_heuristic.html --progress-every 10`
+    - BC won 9/30, avg reward -0.400, avg turns 12.87.
+- SFT-PPO fine-tune:
+  - Command:
+    - `python3 train_ppo_multiseed.py --seeds 801 802 803 --episodes 120 --diagnostic-games 10 --mcts-games 4 --batch-size 64 --rollout-episodes 8 --update-epochs 4 --init-checkpoint results/checkpoints/bc_mixed.pt --tag sft_ppo --progress`
+  - Outputs:
+    - `results/checkpoints/sft_ppo_seed801.pt`
+    - `results/checkpoints/sft_ppo_seed802.pt`
+    - `results/checkpoints/sft_ppo_seed803.pt`
+    - `results/summary/sft_ppo_s3_e120_training.csv`
+    - `results/summary/sft_ppo_s3_e120_reward_curves.html`
+    - `results/evaluations/sft_ppo_s3_e120_diagnostics_detail.csv`
+    - `results/summary/sft_ppo_s3_e120_diagnostics_summary.csv`
+    - `results/summary/sft_ppo_s3_e120_diagnostics.html`
+  - Diagnostic results:
+    - SFT-PPO vs random: mean win rate 0.967, mean reward 0.933 over 30 games.
+    - SFT-PPO vs heuristic: mean win rate 0.233, mean reward -0.533 over 30 games.
+    - SFT-PPO vs mcts:20:6: mean win rate 0.250, mean reward -0.500 over 12 games.
+- Grouped experiment smoke:
+  - `python3 run_experiments.py --preset full --seeds 21 --games 2 --mcts-games 1 --output-dir results/summary --progress`
+  - Passed and generated `results/summary/full_s1_g2_summary.html`.
+- Interpretation:
+  - Mixed expert SFT is much more effective than pure PPO for tactical play.
+  - PPO-from-scratch long run had 0.033 win rate vs heuristic and 0.000 vs MCTS.
+  - SFT-only reached 0.300 vs heuristic.
+  - SFT-PPO reached 0.233 vs heuristic and 0.250 vs MCTS.
+  - Fine-tuning did not beat SFT-only against heuristic in this run, but it did produce wins against MCTS.
+- Recommended next step:
+  - Increase expert data diversity, especially MCTS-vs-heuristic games and curated immediate-block positions.
+  - Consider preserving SFT policy more gently during PPO fine-tune, for example lower PPO learning rate or fewer update epochs.
+  - Optionally add reward shaping for immediate threats and compare against SFT-PPO.

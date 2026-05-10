@@ -16,7 +16,7 @@ from torch import nn
 
 from dqn_model import action_mask, state_tensor
 from match import evaluate_pair
-from ppo_model import PPOActorCritic, masked_action_distribution, save_checkpoint
+from ppo_model import PPOActorCritic, load_checkpoint, masked_action_distribution, save_checkpoint
 from agents import make_agent
 from super_tictactoe import SuperTicTacToeEnv, player_name
 
@@ -186,10 +186,15 @@ def train(
     entropy_coef: float,
     max_turns: int,
     device: torch.device,
+    init_checkpoint: str | None = None,
 ) -> tuple[PPOActorCritic, list[dict[str, float | int | str]], dict[str, float]]:
     random.seed(seed)
     torch.manual_seed(seed)
-    model = PPOActorCritic().to(device)
+    if init_checkpoint:
+        model, _ = load_checkpoint(init_checkpoint, map_location=device)
+        model = model.to(device)
+    else:
+        model = PPOActorCritic().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     history: list[dict[str, float | int | str]] = []
     recent_x_rewards: list[float] = []
@@ -403,6 +408,7 @@ def main() -> None:
     parser.add_argument("--entropy-coef", type=float, default=0.01)
     parser.add_argument("--max-turns", type=int, default=240)
     parser.add_argument("--deterministic", action="store_true")
+    parser.add_argument("--init-checkpoint")
     parser.add_argument("--output", default="results/checkpoints/ppo_checkpoint.pt")
     parser.add_argument("--history-csv")
     parser.add_argument("--history-html")
@@ -423,12 +429,14 @@ def main() -> None:
         entropy_coef=args.entropy_coef,
         max_turns=args.max_turns,
         device=device,
+        init_checkpoint=args.init_checkpoint,
     )
     metadata = {
         "train": train_metrics,
         "stochastic": stochastic,
         "seed": args.seed,
         "episodes": args.episodes,
+        "init_checkpoint": args.init_checkpoint,
         "note": "Pure PPO actor-critic baseline with no hand-written tactical rules.",
     }
     save_checkpoint(args.output, model.cpu(), metadata)
