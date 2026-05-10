@@ -118,6 +118,8 @@ def ppo_update(
     value_coef: float,
     entropy_coef: float,
     device: torch.device,
+    reference_model: PPOActorCritic | None = None,
+    reference_kl_coef: float = 0.0,
 ) -> dict[str, float]:
     states = torch.stack([item.state for item in transitions]).to(device)
     masks = torch.stack([item.mask for item in transitions]).to(device)
@@ -133,6 +135,7 @@ def ppo_update(
     policy_losses: list[float] = []
     value_losses: list[float] = []
     entropies: list[float] = []
+    reference_kls: list[float] = []
 
     total = len(transitions)
     indices = torch.arange(total)
@@ -147,13 +150,31 @@ def ppo_update(
             distribution = torch.distributions.Categorical(logits=masked_logits)
             log_probs = distribution.log_prob(actions[batch_idx])
             entropy = distribution.entropy().mean()
+            reference_kl = torch.tensor(0.0, device=device)
+            if reference_model is not None and reference_kl_coef > 0.0:
+                with torch.no_grad():
+                    reference_logits, _ = reference_model(states[batch_idx])
+                    reference_logits = reference_logits.clone()
+                    reference_logits[~batch_masks] = -1e9
+                    reference_distribution = torch.distributions.Categorical(
+                        logits=reference_logits
+                    )
+                reference_kl = torch.distributions.kl_divergence(
+                    distribution,
+                    reference_distribution,
+                ).mean()
 
             ratio = torch.exp(log_probs - old_log_probs[batch_idx])
             unclipped = ratio * advantages[batch_idx]
             clipped = torch.clamp(ratio, 1.0 - clip_ratio, 1.0 + clip_ratio) * advantages[batch_idx]
             policy_loss = -torch.min(unclipped, clipped).mean()
             value_loss = F.mse_loss(values, returns[batch_idx])
-            loss = policy_loss + value_coef * value_loss - entropy_coef * entropy
+            loss = (
+                policy_loss
+                + value_coef * value_loss
+                - entropy_coef * entropy
+                + reference_kl_coef * reference_kl
+            )
 
             optimizer.zero_grad()
             loss.backward()
@@ -164,12 +185,14 @@ def ppo_update(
             policy_losses.append(float(policy_loss.item()))
             value_losses.append(float(value_loss.item()))
             entropies.append(float(entropy.item()))
+            reference_kls.append(float(reference_kl.item()))
 
     return {
         "loss": mean(losses) if losses else 0.0,
         "policy_loss": mean(policy_losses) if policy_losses else 0.0,
         "value_loss": mean(value_losses) if value_losses else 0.0,
         "entropy": mean(entropies) if entropies else 0.0,
+        "reference_kl": mean(reference_kls) if reference_kls else 0.0,
     }
 
 
@@ -187,14 +210,21 @@ def train(
     max_turns: int,
     device: torch.device,
     init_checkpoint: str | None = None,
+    reference_kl_coef: float = 0.0,
 ) -> tuple[PPOActorCritic, list[dict[str, float | int | str]], dict[str, float]]:
     random.seed(seed)
     torch.manual_seed(seed)
     if init_checkpoint:
         model, _ = load_checkpoint(init_checkpoint, map_location=device)
         model = model.to(device)
+        reference_model, _ = load_checkpoint(init_checkpoint, map_location=device)
+        reference_model = reference_model.to(device)
+        reference_model.eval()
+        for parameter in reference_model.parameters():
+            parameter.requires_grad_(False)
     else:
         model = PPOActorCritic().to(device)
+        reference_model = None
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     history: list[dict[str, float | int | str]] = []
     recent_x_rewards: list[float] = []
@@ -234,6 +264,8 @@ def train(
             value_coef=value_coef,
             entropy_coef=entropy_coef,
             device=device,
+            reference_model=reference_model,
+            reference_kl_coef=reference_kl_coef,
         )
 
         for metrics in metrics_batch:
@@ -262,6 +294,7 @@ def train(
                     "policy_loss": update_metrics["policy_loss"],
                     "value_loss": update_metrics["value_loss"],
                     "entropy": update_metrics["entropy"],
+                    "reference_kl": update_metrics["reference_kl"],
                 }
             )
 
@@ -314,6 +347,7 @@ def save_history_csv(path: str, history: list[dict[str, float | int | str]]) -> 
         "policy_loss",
         "value_loss",
         "entropy",
+        "reference_kl",
     ]
     with open(path, "w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
@@ -335,6 +369,7 @@ def save_history_html(path: str, history: list[dict[str, float | int | str]]) ->
         f"<td>{float(row['rolling_x_reward_50']):.3f}</td>"
         f"<td>{float(row['loss']):.4f}</td>"
         f"<td>{float(row['entropy']):.3f}</td>"
+        f"<td>{float(row.get('reference_kl', 0.0)):.4f}</td>"
         "</tr>"
         for row in history
     )
@@ -358,7 +393,7 @@ def save_history_html(path: str, history: list[dict[str, float | int | str]]) ->
   <p>Rolling reward is measured from X's perspective over the latest 50 self-play episodes.</p>
   {points}
   <table>
-    <thead><tr><th>Episode</th><th>Update</th><th>Winner</th><th>Turns</th><th>X Reward</th><th>Rolling X Reward</th><th>Loss</th><th>Entropy</th></tr></thead>
+    <thead><tr><th>Episode</th><th>Update</th><th>Winner</th><th>Turns</th><th>X Reward</th><th>Rolling X Reward</th><th>Loss</th><th>Entropy</th><th>Ref KL</th></tr></thead>
     <tbody>{rows}</tbody>
   </table>
 </body>
@@ -406,6 +441,7 @@ def main() -> None:
     parser.add_argument("--clip-ratio", type=float, default=0.2)
     parser.add_argument("--value-coef", type=float, default=0.5)
     parser.add_argument("--entropy-coef", type=float, default=0.01)
+    parser.add_argument("--reference-kl-coef", type=float, default=0.0)
     parser.add_argument("--max-turns", type=int, default=240)
     parser.add_argument("--deterministic", action="store_true")
     parser.add_argument("--init-checkpoint")
@@ -430,6 +466,7 @@ def main() -> None:
         max_turns=args.max_turns,
         device=device,
         init_checkpoint=args.init_checkpoint,
+        reference_kl_coef=args.reference_kl_coef,
     )
     metadata = {
         "train": train_metrics,
@@ -437,6 +474,7 @@ def main() -> None:
         "seed": args.seed,
         "episodes": args.episodes,
         "init_checkpoint": args.init_checkpoint,
+        "reference_kl_coef": args.reference_kl_coef,
         "note": "Pure PPO actor-critic baseline with no hand-written tactical rules.",
     }
     save_checkpoint(args.output, model.cpu(), metadata)

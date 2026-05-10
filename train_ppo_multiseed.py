@@ -284,6 +284,7 @@ def main() -> None:
     parser.add_argument("--clip-ratio", type=float, default=0.2)
     parser.add_argument("--value-coef", type=float, default=0.5)
     parser.add_argument("--entropy-coef", type=float, default=0.01)
+    parser.add_argument("--reference-kl-coef", type=float, default=0.0)
     parser.add_argument("--max-turns", type=int, default=240)
     parser.add_argument("--deterministic", action="store_true")
     parser.add_argument("--init-checkpoint")
@@ -322,6 +323,7 @@ def main() -> None:
             max_turns=args.max_turns,
             device=device,
             init_checkpoint=args.init_checkpoint,
+            reference_kl_coef=args.reference_kl_coef,
         )
         elapsed = perf_counter() - start
         metadata = {
@@ -330,6 +332,7 @@ def main() -> None:
             "seed": seed,
             "episodes": args.episodes,
             "init_checkpoint": args.init_checkpoint,
+            "reference_kl_coef": args.reference_kl_coef,
             "note": "Multi-seed PPO actor-critic baseline with no hand-written tactical rules.",
         }
         save_checkpoint(str(checkpoint_path), model.cpu(), metadata)

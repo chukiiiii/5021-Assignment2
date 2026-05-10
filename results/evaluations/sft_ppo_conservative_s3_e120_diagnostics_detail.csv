@@ -1,0 +1,10 @@
+seed,checkpoint,opponent,opponent_spec,games,agent_a,agent_b,win_rate,avg_reward,draw_rate,avg_turns,avg_forfeits,avg_redirects
+901,results/checkpoints/sft_ppo_conservative_seed901.pt,random,random,10,ppo:results/checkpoints/sft_ppo_conservative_seed901.pt,random,1.0,1.0,0.0,13.3,1.4,4.2
+901,results/checkpoints/sft_ppo_conservative_seed901.pt,heuristic,heuristic,10,ppo:results/checkpoints/sft_ppo_conservative_seed901.pt,heuristic,0.5,0.0,0.0,9.4,0.4,3.9
+901,results/checkpoints/sft_ppo_conservative_seed901.pt,mcts20c6,mcts:20:6,4,ppo:results/checkpoints/sft_ppo_conservative_seed901.pt,mcts:20,0.75,0.5,0.0,17.75,1.75,6.75
+902,results/checkpoints/sft_ppo_conservative_seed902.pt,random,random,10,ppo:results/checkpoints/sft_ppo_conservative_seed902.pt,random,1.0,1.0,0.0,11.1,0.9,3.7
+902,results/checkpoints/sft_ppo_conservative_seed902.pt,heuristic,heuristic,10,ppo:results/checkpoints/sft_ppo_conservative_seed902.pt,heuristic,0.5,0.0,0.0,10.6,0.8,3.8
+902,results/checkpoints/sft_ppo_conservative_seed902.pt,mcts20c6,mcts:20:6,4,ppo:results/checkpoints/sft_ppo_conservative_seed902.pt,mcts:20,0.25,-0.5,0.0,11.75,1.5,3.5
+903,results/checkpoints/sft_ppo_conservative_seed903.pt,random,random,10,ppo:results/checkpoints/sft_ppo_conservative_seed903.pt,random,1.0,1.0,0.0,13.7,1.7,4
+903,results/checkpoints/sft_ppo_conservative_seed903.pt,heuristic,heuristic,10,ppo:results/checkpoints/sft_ppo_conservative_seed903.pt,heuristic,0.2,-0.6000000000000001,0.0,9.7,0.5,3.2
+903,results/checkpoints/sft_ppo_conservative_seed903.pt,mcts20c6,mcts:20:6,4,ppo:results/checkpoints/sft_ppo_conservative_seed903.pt,mcts:20,0.5,0.0,0.0,16.5,3.5,4.5

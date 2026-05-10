@@ -37,6 +37,11 @@ EXPERIMENTS = [
     Experiment("sft_ppo_vs_random", "ppo:results/checkpoints/sft_ppo_seed801.pt", "random"),
     Experiment("sft_ppo_vs_heuristic", "ppo:results/checkpoints/sft_ppo_seed801.pt", "heuristic"),
     Experiment("sft_ppo_vs_mcts20c6", "ppo:results/checkpoints/sft_ppo_seed801.pt", "mcts:20:6"),
+    Experiment("bc_large_vs_random", "ppo:results/checkpoints/bc_mixed_large.pt", "random"),
+    Experiment("bc_large_vs_heuristic", "ppo:results/checkpoints/bc_mixed_large.pt", "heuristic"),
+    Experiment("sft_ppo_conservative_vs_random", "ppo:results/checkpoints/sft_ppo_conservative_seed901.pt", "random"),
+    Experiment("sft_ppo_conservative_vs_heuristic", "ppo:results/checkpoints/sft_ppo_conservative_seed901.pt", "heuristic"),
+    Experiment("sft_ppo_conservative_vs_mcts20c6", "ppo:results/checkpoints/sft_ppo_conservative_seed901.pt", "mcts:20:6"),
 ]
 
 SMOKE_EXPERIMENTS = [
