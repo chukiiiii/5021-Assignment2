@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Super Tic-Tac-Toe Experiment Summary</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; margin: 32px; color: #222; }
+    table { border-collapse: collapse; width: 100%; margin: 20px 0 32px; font-size: 14px; }
+    th, td { border-bottom: 1px solid #ddd; padding: 8px 10px; text-align: left; }
+    th { background: #f5f5f5; }
+    h1, h2 { margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Experiment Summary</h1>
+  <h2>Aggregate</h2>
+  <table>
+    <thead><tr><th>Experiment</th><th>Agent A</th><th>Agent B</th><th>Games</th><th>Mean Win</th><th>Std Win</th><th>Mean Reward</th><th>Turns</th><th>Forfeits</th><th>Redirects</th></tr></thead>
+    <tbody><tr><td>random_vs_random</td><td>A:random</td><td>B:random</td><td>2</td><td>0.500</td><td>0.000</td><td>0.000</td><td>61.00</td><td>13.00</td><td>16.00</td></tr>
+<tr><td>qtable_vs_random</td><td>qtable:results/checkpoints/q_table.json</td><td>random</td><td>2</td><td>0.500</td><td>0.000</td><td>0.000</td><td>61.00</td><td>13.00</td><td>16.00</td></tr>
+<tr><td>heuristic_vs_random</td><td>heuristic</td><td>random</td><td>2</td><td>1.000</td><td>0.000</td><td>1.000</td><td>9.50</td><td>0.00</td><td>3.50</td></tr>
+<tr><td>mcts20c6_vs_random</td><td>mcts:20</td><td>random</td><td>1</td><td>1.000</td><td>0.000</td><td>1.000</td><td>11.00</td><td>1.00</td><td>4.00</td></tr>
+<tr><td>mcts50c6_vs_heuristic</td><td>mcts:50</td><td>heuristic</td><td>1</td><td>0.000</td><td>0.000</td><td>-1.000</td><td>8.00</td><td>0.00</td><td>5.00</td></tr>
+<tr><td>dqn_stochastic_vs_random</td><td>dqn:results/checkpoints/dqn_stochastic_smoke.pt</td><td>random</td><td>2</td><td>0.500</td><td>0.000</td><td>0.000</td><td>32.00</td><td>3.00</td><td>11.00</td></tr>
+<tr><td>dqn_stochastic_vs_heuristic</td><td>dqn:results/checkpoints/dqn_stochastic_smoke.pt</td><td>heuristic</td><td>2</td><td>0.000</td><td>0.000</td><td>-1.000</td><td>8.50</td><td>0.50</td><td>3.00</td></tr>
+<tr><td>ppo_stochastic_vs_random</td><td>ppo:results/checkpoints/ppo_stochastic_smoke.pt</td><td>random</td><td>2</td><td>0.500</td><td>0.000</td><td>0.000</td><td>64.00</td><td>11.00</td><td>19.00</td></tr>
+<tr><td>ppo_stochastic_vs_heuristic</td><td>ppo:results/checkpoints/ppo_stochastic_smoke.pt</td><td>heuristic</td><td>2</td><td>0.000</td><td>0.000</td><td>-1.000</td><td>9.50</td><td>0.50</td><td>3.00</td></tr>
+<tr><td>bc_mixed_vs_random</td><td>ppo:results/checkpoints/bc_mixed.pt</td><td>random</td><td>2</td><td>1.000</td><td>0.000</td><td>1.000</td><td>9.50</td><td>0.00</td><td>3.50</td></tr>
+<tr><td>bc_mixed_vs_heuristic</td><td>ppo:results/checkpoints/bc_mixed.pt</td><td>heuristic</td><td>2</td><td>0.000</td><td>0.000</td><td>-1.000</td><td>9.50</td><td>0.50</td><td>3.00</td></tr>
+<tr><td>sft_ppo_vs_random</td><td>ppo:results/checkpoints/sft_ppo_seed801.pt</td><td>random</td><td>2</td><td>1.000</td><td>0.000</td><td>1.000</td><td>18.50</td><td>2.00</td><td>6.00</td></tr>
+<tr><td>sft_ppo_vs_heuristic</td><td>ppo:results/checkpoints/sft_ppo_seed801.pt</td><td>heuristic</td><td>2</td><td>0.000</td><td>0.000</td><td>-1.000</td><td>9.50</td><td>0.00</td><td>3.50</td></tr>
+<tr><td>sft_ppo_vs_mcts20c6</td><td>ppo:results/checkpoints/sft_ppo_seed801.pt</td><td>mcts:20</td><td>2</td><td>0.000</td><td>0.000</td><td>-1.000</td><td>10.50</td><td>0.50</td><td>4.00</td></tr></tbody>
+  </table>
+  <h2>Per Seed</h2>
+  <table>
+    <thead><tr><th>Experiment</th><th>Seed</th><th>Games</th><th>Win Rate</th><th>Reward</th><th>Turns</th><th>Seconds</th></tr></thead>
+    <tbody><tr><td>random_vs_random</td><td>21</td><td>2</td><td>0.500</td><td>0.000</td><td>61.00</td><td>0.0</td></tr>
+<tr><td>qtable_vs_random</td><td>21</td><td>2</td><td>0.500</td><td>0.000</td><td>61.00</td><td>0.0</td></tr>
+<tr><td>heuristic_vs_random</td><td>21</td><td>2</td><td>1.000</td><td>1.000</td><td>9.50</td><td>0.5</td></tr>
+<tr><td>mcts20c6_vs_random</td><td>21</td><td>1</td><td>1.000</td><td>1.000</td><td>11.00</td><td>2.9</td></tr>
+<tr><td>mcts50c6_vs_heuristic</td><td>21</td><td>1</td><td>0.000</td><td>-1.000</td><td>8.00</td><td>5.0</td></tr>
+<tr><td>dqn_stochastic_vs_random</td><td>21</td><td>2</td><td>0.500</td><td>0.000</td><td>32.00</td><td>0.0</td></tr>
+<tr><td>dqn_stochastic_vs_heuristic</td><td>21</td><td>2</td><td>0.000</td><td>-1.000</td><td>8.50</td><td>0.5</td></tr>
+<tr><td>ppo_stochastic_vs_random</td><td>21</td><td>2</td><td>0.500</td><td>0.000</td><td>64.00</td><td>0.0</td></tr>
+<tr><td>ppo_stochastic_vs_heuristic</td><td>21</td><td>2</td><td>0.000</td><td>-1.000</td><td>9.50</td><td>0.5</td></tr>
+<tr><td>bc_mixed_vs_random</td><td>21</td><td>2</td><td>1.000</td><td>1.000</td><td>9.50</td><td>0.0</td></tr>
+<tr><td>bc_mixed_vs_heuristic</td><td>21</td><td>2</td><td>0.000</td><td>-1.000</td><td>9.50</td><td>0.5</td></tr>
+<tr><td>sft_ppo_vs_random</td><td>21</td><td>2</td><td>1.000</td><td>1.000</td><td>18.50</td><td>0.0</td></tr>
+<tr><td>sft_ppo_vs_heuristic</td><td>21</td><td>2</td><td>0.000</td><td>-1.000</td><td>9.50</td><td>0.5</td></tr>
+<tr><td>sft_ppo_vs_mcts20c6</td><td>21</td><td>2</td><td>0.000</td><td>-1.000</td><td>10.50</td><td>6.7</td></tr></tbody>
+  </table>
+</body>
+</html>

@@ -1,0 +1,15 @@
+experiment,agent_a,agent_b,seed,games,stochastic,agent_a_win_rate,agent_b_win_rate,draw_rate,agent_a_reward,avg_turns,avg_forfeits,avg_redirects,elapsed_seconds
+random_vs_random,A:random,B:random,21,2,True,0.5,0.5,0.0,0.0,61,13,16,0.0033072500373236835
+qtable_vs_random,qtable:results/checkpoints/q_table.json,random,21,2,True,0.5,0.5,0.0,0.0,61,13,16,0.004819708992727101
+heuristic_vs_random,heuristic,random,21,2,True,1.0,0.0,0.0,1.0,9.5,0,3.5,0.5120363339665346
+mcts20c6_vs_random,mcts:20,random,21,1,True,1.0,0.0,0.0,1.0,11,1,4,2.9089352089795284
+mcts50c6_vs_heuristic,mcts:50,heuristic,21,1,True,0.0,1.0,0.0,-1.0,8,0,5,4.998876708035823
+dqn_stochastic_vs_random,dqn:results/checkpoints/dqn_stochastic_smoke.pt,random,21,2,True,0.5,0.5,0.0,0.0,32,3,11,0.015984708967152983
+dqn_stochastic_vs_heuristic,dqn:results/checkpoints/dqn_stochastic_smoke.pt,heuristic,21,2,True,0.0,1.0,0.0,-1.0,8.5,0.5,3,0.5009838329860941
+ppo_stochastic_vs_random,ppo:results/checkpoints/ppo_stochastic_smoke.pt,random,21,2,True,0.5,0.5,0.0,0.0,64,11,19,0.029104958986863494
+ppo_stochastic_vs_heuristic,ppo:results/checkpoints/ppo_stochastic_smoke.pt,heuristic,21,2,True,0.0,1.0,0.0,-1.0,9.5,0.5,3,0.5360913750482723
+bc_mixed_vs_random,ppo:results/checkpoints/bc_mixed.pt,random,21,2,True,1.0,0.0,0.0,1.0,9.5,0,3.5,0.005191083007957786
+bc_mixed_vs_heuristic,ppo:results/checkpoints/bc_mixed.pt,heuristic,21,2,True,0.0,1.0,0.0,-1.0,9.5,0.5,3,0.5280999999959022
+sft_ppo_vs_random,ppo:results/checkpoints/sft_ppo_seed801.pt,random,21,2,True,1.0,0.0,0.0,1.0,18.5,2,6,0.008958458027336746
+sft_ppo_vs_heuristic,ppo:results/checkpoints/sft_ppo_seed801.pt,heuristic,21,2,True,0.0,1.0,0.0,-1.0,9.5,0,3.5,0.5263921670266427
+sft_ppo_vs_mcts20c6,ppo:results/checkpoints/sft_ppo_seed801.pt,mcts:20,21,2,True,0.0,1.0,0.0,-1.0,10.5,0.5,4,6.694922292022966

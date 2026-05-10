@@ -1,0 +1,4 @@
+seed,checkpoint,opponent,opponent_spec,games,agent_a,agent_b,win_rate,avg_reward,draw_rate,avg_turns,avg_forfeits,avg_redirects
+601,results/checkpoints/ppo_multiseed_smoke_seed601.pt,random,random,2,ppo:results/checkpoints/ppo_multiseed_smoke_seed601.pt,random,0.5,0.0,0.0,75,19,17
+601,results/checkpoints/ppo_multiseed_smoke_seed601.pt,heuristic,heuristic,2,ppo:results/checkpoints/ppo_multiseed_smoke_seed601.pt,heuristic,0.0,-1.0,0.0,14.5,2.5,3.5
+601,results/checkpoints/ppo_multiseed_smoke_seed601.pt,mcts20c6,mcts:20:6,1,ppo:results/checkpoints/ppo_multiseed_smoke_seed601.pt,mcts:20,0.0,-1.0,0.0,12,2,4

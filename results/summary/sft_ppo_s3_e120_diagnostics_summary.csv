@@ -1,0 +1,4 @@
+opponent,seeds,games_total,mean_win_rate,std_win_rate,mean_reward,std_reward,mean_turns,agent_a,agent_b
+random,3,30,0.9666666666666667,0.05773502691896256,0.9333333333333333,0.11547005383792512,18.866666666666667,ppo:results/checkpoints/sft_ppo_seed801.pt,random
+heuristic,3,30,0.23333333333333334,0.11547005383792515,-0.5333333333333333,0.23094010767585035,13.0,ppo:results/checkpoints/sft_ppo_seed801.pt,heuristic
+mcts20c6,3,12,0.25,0.25,-0.5,0.5,11.75,ppo:results/checkpoints/sft_ppo_seed801.pt,mcts:20

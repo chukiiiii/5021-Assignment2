@@ -399,7 +399,110 @@ Interpretation:
 - The agent still loses quickly to heuristic and MCTS, which means it has not learned reliable immediate-win or blocking tactics from self-play alone.
 - The next improvement should not just be "more episodes"; it should also improve the learning signal, for example by using curriculum opponents, prioritized replay, shaped auxiliary rewards, or supervised pretraining from heuristic/MCTS trajectories.
 
-## 9. Interactive Game UI
+## 9. Longer PPO Training and Diagnostics
+
+I added `train_ppo_multiseed.py` to run the same style of long multi-seed experiment for PPO.
+
+Command used:
+
+```bash
+python3 train_ppo_multiseed.py --seeds 501 502 503 --episodes 120 --diagnostic-games 10 --mcts-games 4 --batch-size 64 --rollout-episodes 8 --update-epochs 4 --tag ppo_long --progress
+```
+
+Generated outputs:
+
+- `results/checkpoints/ppo_long_seed501.pt`
+- `results/checkpoints/ppo_long_seed502.pt`
+- `results/checkpoints/ppo_long_seed503.pt`
+- `results/history/ppo_long_seed501_history.html`
+- `results/history/ppo_long_seed502_history.html`
+- `results/history/ppo_long_seed503_history.html`
+- `results/summary/ppo_long_s3_e120_reward_curves.html`
+- `results/summary/ppo_long_s3_e120_training.csv`
+- `results/summary/ppo_long_s3_e120_diagnostics_summary.csv`
+- `results/summary/ppo_long_s3_e120_diagnostics.html`
+
+Training summary:
+
+| Seed | Episodes | X win rate | O win rate | Avg turns | Final rolling X reward |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 501 | 120 | 0.542 | 0.458 | 62.08 | 0.280 |
+| 502 | 120 | 0.558 | 0.442 | 58.48 | 0.120 |
+| 503 | 120 | 0.500 | 0.500 | 61.57 | -0.160 |
+
+Diagnostic evaluation:
+
+| Opponent | Seeds | Games | Mean PPO win rate | Mean reward | Mean turns |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Random | 3 | 30 | 0.933 | 0.867 | 37.70 |
+| Heuristic | 3 | 30 | 0.033 | -0.933 | 11.60 |
+| MCTS-20 top6 | 3 | 12 | 0.000 | -1.000 | 14.17 |
+
+Interpretation:
+
+- PPO improves substantially against random when trained longer, reaching 28/30 wins in this diagnostic set.
+- PPO is stronger than the current DQN long run against random under this comparable 120-episode budget.
+- PPO still almost always loses to the tactical heuristic and always loses to MCTS in this test.
+- This suggests that increasing training episodes helps with basic play, but does not by itself teach robust threat blocking.
+
+## 10. Mixed Expert SFT and PPO Fine-Tuning
+
+I added a mixed expert data and behavior-cloning stage to address the sparse-reward tactical weakness.
+
+Expert data command:
+
+```bash
+python3 generate_expert_data.py
+```
+
+Generated expert data:
+
+| Source | Games | Samples | X win rate | O win rate | Avg turns |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Heuristic self-play | 200 | 2288 | 0.610 | 0.390 | 11.44 |
+| MCTS-20 top6 vs heuristic | 30 | 369 | 0.300 | 0.700 | 12.30 |
+
+Behavior cloning command:
+
+```bash
+python3 train_bc.py
+```
+
+BC result:
+
+| Checkpoint | Samples | Validation top-1 | Validation legal action |
+| --- | ---: | ---: | ---: |
+| `ppo:results/checkpoints/bc_mixed.pt` | 2657 | 0.645 | 1.000 |
+
+SFT-only evaluation:
+
+| Agent | Opponent | Games | Win rate | Avg reward | Avg turns |
+| --- | --- | ---: | ---: | ---: | ---: |
+| BC mixed | Random | 30 | 0.967 | 0.933 | 17.20 |
+| BC mixed | Heuristic | 30 | 0.300 | -0.400 | 12.87 |
+
+SFT-PPO fine-tuning command:
+
+```bash
+python3 train_ppo_multiseed.py --seeds 801 802 803 --episodes 120 --diagnostic-games 10 --mcts-games 4 --batch-size 64 --rollout-episodes 8 --update-epochs 4 --init-checkpoint results/checkpoints/bc_mixed.pt --tag sft_ppo --progress
+```
+
+SFT-PPO diagnostic evaluation:
+
+| Opponent | Seeds | Games | Mean SFT-PPO win rate | Mean reward | Mean turns |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Random | 3 | 30 | 0.967 | 0.933 | 18.87 |
+| Heuristic | 3 | 30 | 0.233 | -0.533 | 13.00 |
+| MCTS-20 top6 | 3 | 12 | 0.250 | -0.500 | 11.75 |
+
+Interpretation:
+
+- SFT-only already improves the tactical gap: against heuristic it reaches 9/30 wins, compared with PPO-from-scratch's 1/30.
+- SFT-PPO remains very strong against random and preserves some tactical improvement against heuristic.
+- SFT-PPO also wins 3/12 against MCTS-20 top6, while PPO-from-scratch won 0/12.
+- The improvement confirms that expert trajectories are more effective than simply increasing PPO episodes for this sparse-reward tactical game.
+
+## 11. Interactive Game UI
 
 I added a local browser interface in `game_ui.py` so that the command-line interaction can be used as a visual game board.
 
@@ -440,23 +543,23 @@ Verification:
 - `GET /api/state` returns the 96 playable cells.
 - `POST /api/new`, `POST /api/move`, and `POST /api/agent-step` update the game state correctly.
 
-## 10. Next Steps
+## 12. Next Steps
 
 The next recommended steps are:
 
-1. Generate heuristic or MCTS expert trajectories for possible supervised pretraining.
-2. Add a behavior-cloning/SFT policy baseline and compare it with pure DQN.
-3. Fine-tune the pretrained policy with RL, then rerun the same diagnostic suite.
-4. Add PPO as a second neural RL method after the DQN loop is better understood.
-5. Repeat the multi-seed table with larger game counts for final reporting.
+1. Increase expert data diversity, especially MCTS-vs-heuristic and tactical edge cases.
+2. Try reward shaping for immediate threat creation/blocking and compare it with SFT-PPO.
+3. Run larger final evaluation tables with more seeds and more games.
+4. Add a concise final discussion comparing Q-learning, DQN, PPO, BC, SFT-PPO, heuristic, and MCTS.
 
 Experiment artifacts are now organized under `results/`:
 
 - `results/checkpoints/`
 - `results/history/`
 - `results/evaluations/`
+- `results/expert/`
 
-## 11. Limitations
+## 13. Limitations
 
 The current implementation still has several limitations:
 
@@ -465,4 +568,5 @@ The current implementation still has several limitations:
 - The heuristic is hand-designed and may overfit the current interpretation of the rules.
 - MCTS is currently correctness-oriented and can be slow at higher simulation counts.
 - DQN has now been trained beyond smoke-test scale, but it is still sample-inefficient and weak against tactical opponents.
-- PPO is currently only implemented and smoke-tested; it needs the same multi-seed diagnostic treatment as DQN before making stronger claims.
+- PPO improves against random with more training, but remains weak against tactical opponents.
+- SFT-PPO improves tactical play, but still does not match heuristic or MCTS.
