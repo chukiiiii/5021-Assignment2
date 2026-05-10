@@ -1,0 +1,4 @@
+seed,episodes,checkpoint,history_csv,history_html,train_x_win_rate,train_o_win_rate,train_draw_rate,train_avg_turns,final_rolling_x_reward_50,elapsed_seconds
+901,120,results/checkpoints/sft_ppo_conservative_seed901.pt,results/history/sft_ppo_conservative_seed901_history.csv,results/history/sft_ppo_conservative_seed901_history.html,0.5333333333333333,0.4666666666666667,0.0,15.133333333333333,-0.16,2.942674249992706
+902,120,results/checkpoints/sft_ppo_conservative_seed902.pt,results/history/sft_ppo_conservative_seed902_history.csv,results/history/sft_ppo_conservative_seed902_history.html,0.625,0.375,0.0,16.175,0.16,2.6278405830380507
+903,120,results/checkpoints/sft_ppo_conservative_seed903.pt,results/history/sft_ppo_conservative_seed903_history.csv,results/history/sft_ppo_conservative_seed903_history.html,0.525,0.475,0.0,19.791666666666668,0.0,3.2734635829692706

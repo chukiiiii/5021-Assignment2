@@ -1,0 +1,4 @@
+opponent,seeds,games_total,mean_win_rate,std_win_rate,mean_reward,std_reward,mean_turns,agent_a,agent_b
+random,3,30,1.0,0.0,1.0,0.0,12.7,ppo:results/checkpoints/sft_ppo_conservative_seed901.pt,random
+heuristic,3,30,0.4,0.17320508075688773,-0.20000000000000004,0.3464101615137755,9.9,ppo:results/checkpoints/sft_ppo_conservative_seed901.pt,heuristic
+mcts20c6,3,12,0.5,0.25,0.0,0.5,15.333333333333334,ppo:results/checkpoints/sft_ppo_conservative_seed901.pt,mcts:20
