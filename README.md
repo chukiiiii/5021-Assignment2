@@ -1,89 +1,102 @@
-# Super Tic-Tac-Toe Assignment
+# Super Tic-Tac-Toe Reinforcement Learning Project
 
-## Structure
+## 📁 Project Structure
 
-- `super_tictactoe.py`: game rules and environment.
-- `agents.py`: reusable agents: random, heuristic, MCTS, Q-table, DQN, human.
-- `match.py`: reusable game runner and match statistics.
-- `evaluate_agents.py`: agent-vs-agent evaluation with JSON/CSV/HTML reports.
-- `play_game.py`: terminal replay or human-vs-agent play.
-- `game_ui.py`: local browser UI.
-- `train_q_learning.py`: tabular Q-learning baseline.
-- `dqn_model.py`: DQN model and tensor helpers.
-- `train_dqn.py`: DQN training script.
-- `train_dqn_multiseed.py`: multi-seed DQN training and diagnostic evaluation.
-- `ppo_model.py`: PPO actor-critic model and checkpoint helpers.
-- `train_ppo.py`: PPO training script.
-- `generate_expert_data.py`: mixed heuristic/MCTS expert data generator.
-- `train_bc.py`: behavior cloning/SFT training script.
-- `test_*.py`: unit and smoke tests.
-- `results/checkpoints/`: trained Q-table and DQN checkpoints.
-- `results/expert/`: expert datasets for behavior cloning.
-- `results/history/`: reward history CSV/HTML files.
-- `results/evaluations/`: evaluation JSON/CSV/HTML reports.
-- `HANDOFF.md`: full handoff log for the next agent.
-- `report.md`: assignment report draft.
-- `EXPERIMENT_PLAN.md`: experiment roadmap.
-
-## Common Commands
-
-Run tests:
-
-```bash
-python3 -m unittest -v
+```
+Assignment2/
+├── src/                    # Source code
+│   ├── env/               # Game environment & UI
+│   │   ├── super_tictactoe.py   # Core game logic
+│   │   ├── match.py             # Game runner & statistics
+│   │   └── game_ui.py           # Browser-based UI
+│   ├── agents/            # Agent implementations
+│   │   ├── agents.py            # Random, heuristic, MCTS, Q-table, DQN, human agents
+│   │   └── play_game.py         # Terminal replay & human-vs-agent
+│   └── models/            # Deep learning models
+│       ├── dqn_model.py         # DQN architecture
+│       └── ppo_model.py         # PPO actor-critic model
+├── train/                 # Training scripts
+│   ├── train_q_learning.py      # Tabular Q-learning
+│   ├── train_dqn.py             # DQN training
+│   ├── train_dqn_multiseed.py   # Multi-seed DQN
+│   ├── train_ppo.py             # PPO training
+│   ├── train_ppo_multiseed.py   # Multi-seed PPO
+│   ├── train_bc.py              # Behavior cloning
+│   └── generate_expert_data.py  # Expert data generation
+├── eval/                  # Evaluation & experiments
+│   ├── evaluate_agents.py       # Agent vs-agent evaluation
+│   └── run_experiments.py       # Experiment orchestration
+├── tests/                 # Unit tests
+│   ├── test_super_tictactoe.py
+│   ├── test_match.py
+│   ├── test_game_ui.py
+│   ├── test_dqn.py
+│   └── test_ppo.py
+├── docs/                  # Documentation
+│   ├── README.md                # Main project documentation
+│   ├── HANDOFF.md               # Handoff notes
+│   ├── EXPERIMENT_PLAN.md       # Experiment roadmap
+│   └── report.md                # Assignment report
+├── results/               # Experimental results
+│   ├── checkpoints/     # Trained model checkpoints
+│   ├── evaluations/     # Evaluation reports (JSON/HTML)
+│   ├── history/         # Training history (CSV/HTML)
+│   └── summary/         # Summary reports
+└── utils/                 # Utility scripts (future use)
 ```
 
-Start the browser UI:
+## 🚀 Quick Start
 
+### Run Tests
 ```bash
-python3 game_ui.py --host 127.0.0.1 --port 8765
+python3 -m pytest tests/ -v
+# or
+python3 -m unittest discover -s tests -v
 ```
 
-Evaluate an agent:
-
+### Train Agents
 ```bash
-python3 evaluate_agents.py --agent-a dqn:results/checkpoints/dqn_stochastic_smoke.pt --agent-b random --games 10 --progress-every 5 --json-output results/evaluations/eval_example.json --csv-output results/evaluations/eval_example.csv --html-output results/evaluations/eval_example.html
+# Q-Learning
+python3 train/train_q_learning.py
+
+# DQN
+python3 train/train_dqn.py --episodes 100
+
+# PPO
+python3 train/train_ppo.py --episodes 100
+
+# Behavior Cloning
+python3 train/generate_expert_data.py
+python3 train/train_bc.py
 ```
 
-Run the reusable multi-seed experiment summary:
-
+### Evaluate Agents
 ```bash
-python3 run_experiments.py --preset full --seeds 1 2 3 --games 10 --mcts-games 5 --progress
+python3 eval/evaluate_agents.py --agent-a dqn:results/checkpoints/dqn.pt --agent-b random --games 20
 ```
 
-Train DQN across multiple seeds and run diagnostics:
-
+### Run Experiments
 ```bash
-python3 train_dqn_multiseed.py --seeds 201 202 203 --episodes 120 --diagnostic-games 10 --mcts-games 4 --batch-size 32 --train-after 128 --target-update 200 --tag dqn_long --progress
+python3 eval/run_experiments.py --preset full --seeds 1 2 3
 ```
 
-Train a short PPO smoke run:
-
+### Play Game
 ```bash
-python3 train_ppo.py --episodes 30 --eval-games 10 --seed 403 --batch-size 32 --rollout-episodes 5 --update-epochs 3 --output results/checkpoints/ppo_stochastic_smoke.pt --history-csv results/history/ppo_stochastic_smoke_history.csv --history-html results/history/ppo_stochastic_smoke_history.html
+# Terminal mode
+python3 src/agents/play_game.py
+
+# Browser UI
+python3 src/env/game_ui.py --host 127.0.0.1 --port 8765
 ```
 
-Train PPO across multiple seeds and run diagnostics:
+## 📋 Common Commands
 
-```bash
-python3 train_ppo_multiseed.py --seeds 501 502 503 --episodes 120 --diagnostic-games 10 --mcts-games 4 --batch-size 64 --rollout-episodes 8 --update-epochs 4 --tag ppo_long --progress
-```
+See [docs/README.md](docs/README.md) for detailed command examples.
 
-Generate mixed expert data and train behavior cloning:
+## 📊 Results
 
-```bash
-python3 generate_expert_data.py
-python3 train_bc.py
-```
-
-Fine-tune PPO from the behavior-cloning checkpoint:
-
-```bash
-python3 train_ppo_multiseed.py --seeds 801 802 803 --episodes 120 --diagnostic-games 10 --mcts-games 4 --batch-size 64 --rollout-episodes 8 --update-epochs 4 --init-checkpoint results/checkpoints/bc_mixed.pt --tag sft_ppo --progress
-```
-
-Train a short DQN smoke run:
-
-```bash
-python3 train_dqn.py --episodes 30 --eval-games 10 --output results/checkpoints/dqn_checkpoint.pt --history-csv results/history/dqn_history.csv --history-html results/history/dqn_history.html
-```
+All experimental results are stored in the `results/` directory:
+- `checkpoints/`: Model weights and Q-tables
+- `evaluations/`: Agent performance metrics
+- `history/`: Training curves and logs
+- `summary/`: Aggregated experiment summaries

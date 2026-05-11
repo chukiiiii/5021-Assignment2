@@ -7,8 +7,8 @@ import csv
 import json
 from pathlib import Path
 
-from agents import make_agent
-from match import MatchSummary, evaluate_pair, results_dict, summary_dict
+from agents.agents import make_agent
+from env.match import MatchSummary, evaluate_pair, results_dict, summary_dict
 
 
 def disambiguate_names(agent_a: object, agent_b: object) -> None:

@@ -9,8 +9,8 @@ from pathlib import Path
 from statistics import mean, stdev
 from time import perf_counter
 
-from agents import make_agent
-from match import MatchSummary, evaluate_pair
+from agents.agents import make_agent
+from env.match import MatchSummary, evaluate_pair
 
 
 @dataclass(frozen=True)

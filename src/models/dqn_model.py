@@ -8,7 +8,7 @@ from typing import Any
 import torch
 from torch import nn
 
-from super_tictactoe import BOARD_SIZE, EMPTY, SuperTicTacToeEnv, VALID_CELLS
+from env.super_tictactoe import BOARD_SIZE, EMPTY, SuperTicTacToeEnv, VALID_CELLS
 
 
 def state_tensor(env: SuperTicTacToeEnv) -> torch.Tensor:

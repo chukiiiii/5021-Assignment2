@@ -14,11 +14,11 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from dqn_model import action_mask, state_tensor
-from match import evaluate_pair
-from ppo_model import PPOActorCritic, load_checkpoint, masked_action_distribution, save_checkpoint
-from agents import make_agent
-from super_tictactoe import SuperTicTacToeEnv, player_name
+from models.dqn_model import action_mask, state_tensor
+from env.match import evaluate_pair
+from models.ppo_model import PPOActorCritic, load_checkpoint, masked_action_distribution, save_checkpoint
+from agents.agents import make_agent
+from env.super_tictactoe import SuperTicTacToeEnv, player_name
 
 
 @dataclass(frozen=True)

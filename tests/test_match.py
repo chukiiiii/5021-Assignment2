@@ -2,11 +2,11 @@ import os
 import tempfile
 import unittest
 
-from agents import HeuristicAgent, MCTSAgent, QTableAgent, RandomAgent
-from agents import make_agent
-from super_tictactoe import O, X, SuperTicTacToeEnv
-from evaluate_agents import save_csv, save_html, save_json
-from match import evaluate_pair, results_dict
+from agents.agents import HeuristicAgent, MCTSAgent, QTableAgent, RandomAgent
+from agents.agents import make_agent
+from env.super_tictactoe import O, X, SuperTicTacToeEnv
+from eval.evaluate_agents import save_csv, save_html, save_json
+from env.match import evaluate_pair, results_dict
 
 
 class MatchTests(unittest.TestCase):

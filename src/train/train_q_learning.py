@@ -11,7 +11,7 @@ import random
 from statistics import mean
 from typing import DefaultDict
 
-from super_tictactoe import SuperTicTacToeEnv, player_name
+from env.super_tictactoe import SuperTicTacToeEnv, player_name
 
 
 QTable = DefaultDict[str, dict[int, float]]

@@ -2,10 +2,10 @@ import os
 import tempfile
 import unittest
 
-from agents import make_agent
-from dqn_model import action_mask, state_tensor
-from ppo_model import PPOActorCritic, save_checkpoint
-from super_tictactoe import SuperTicTacToeEnv
+from agents.agents import make_agent
+from models.dqn_model import action_mask, state_tensor
+from models.ppo_model import PPOActorCritic, save_checkpoint
+from env.super_tictactoe import SuperTicTacToeEnv
 
 
 class PPOTests(unittest.TestCase):

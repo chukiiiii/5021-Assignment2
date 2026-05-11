@@ -1,4 +1,4 @@
-"""Train PPO across several seeds and run diagnostic matchups."""
+"""Train DQN across several seeds and run diagnostic matchups."""
 
 from __future__ import annotations
 
@@ -11,10 +11,10 @@ from time import perf_counter
 
 import torch
 
-from agents import make_agent
-from match import MatchSummary, evaluate_pair
-from ppo_model import save_checkpoint
-from train_ppo import save_history_csv, save_history_html, train
+from agents.agents import make_agent
+from models.dqn_model import save_checkpoint
+from env.match import MatchSummary, evaluate_pair
+from train.train_dqn import save_history_csv, save_history_html, train
 
 
 @dataclass(frozen=True)
@@ -81,11 +81,13 @@ def svg_multi_seed_chart(series: dict[str, list[tuple[int, float]]], width: int 
 
     pad = 36
     max_episode = max(point[0] for points in series.values() for point in points)
-    colors = ["#2e7d32", "#1565c0", "#c62828", "#6a1b9a", "#ef6c00", "#00838f"]
+    min_value = -1.0
+    max_value = 1.0
+    colors = ["#1565c0", "#2e7d32", "#c62828", "#6a1b9a", "#ef6c00", "#00838f"]
 
     def point(episode: int, value: float) -> tuple[float, float]:
         x = pad + (episode - 1) * (width - 2 * pad) / max(1, max_episode - 1)
-        y = height - pad - (value + 1.0) * (height - 2 * pad) / 2.0
+        y = height - pad - (value - min_value) * (height - 2 * pad) / (max_value - min_value)
         return x, y
 
     zero_y = point(1, 0.0)[1]
@@ -137,7 +139,7 @@ def write_training_html(
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>PPO Multi-Seed Reward Curves</title>
+  <title>DQN Multi-Seed Reward Curves</title>
   <style>
     body {{ font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; margin: 32px; color: #222; }}
     svg {{ width: 100%; max-width: 880px; height: auto; border: 1px solid #ddd; background: #fff; }}
@@ -151,7 +153,7 @@ def write_training_html(
   </style>
 </head>
 <body>
-  <h1>PPO Multi-Seed Reward Curves</h1>
+  <h1>DQN Multi-Seed Reward Curves</h1>
   <p>Rolling reward is measured from X's perspective over the latest 50 self-play episodes.</p>
   {chart}
   <table>
@@ -196,7 +198,7 @@ def write_diagnostics_html(
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>PPO Diagnostic Matchups</title>
+  <title>DQN Diagnostic Matchups</title>
   <style>
     body {{ font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; margin: 32px; color: #222; }}
     table {{ border-collapse: collapse; width: 100%; margin: 20px 0 32px; font-size: 14px; }}
@@ -205,7 +207,7 @@ def write_diagnostics_html(
   </style>
 </head>
 <body>
-  <h1>PPO Diagnostic Matchups</h1>
+  <h1>DQN Diagnostic Matchups</h1>
   <h2>Aggregate</h2>
   <table>
     <thead><tr><th>Opponent</th><th>Games</th><th>Mean Win</th><th>Std Win</th><th>Mean Reward</th><th>Mean Turns</th></tr></thead>
@@ -231,7 +233,7 @@ def run_diagnostics(
 ) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
     for opponent in opponents:
-        agent_a = make_agent(f"ppo:{checkpoint_path}", seed=seed)
+        agent_a = make_agent(f"dqn:{checkpoint_path}", seed=seed)
         agent_b = make_agent(opponent.spec, seed=seed + 20_000)
 
         def progress_callback(done_games: int, result: object) -> None:
@@ -273,22 +275,21 @@ def run_diagnostics(
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--seeds", type=int, nargs="+", default=[501, 502, 503])
+    parser.add_argument("--seeds", type=int, nargs="+", default=[201, 202, 203])
     parser.add_argument("--episodes", type=int, default=120)
+    parser.add_argument("--eval-games", type=int, default=12)
     parser.add_argument("--diagnostic-games", type=int, default=10)
     parser.add_argument("--mcts-games", type=int, default=4)
-    parser.add_argument("--batch-size", type=int, default=64)
-    parser.add_argument("--rollout-episodes", type=int, default=8)
-    parser.add_argument("--update-epochs", type=int, default=4)
-    parser.add_argument("--lr", type=float, default=3e-4)
-    parser.add_argument("--clip-ratio", type=float, default=0.2)
-    parser.add_argument("--value-coef", type=float, default=0.5)
-    parser.add_argument("--entropy-coef", type=float, default=0.01)
-    parser.add_argument("--reference-kl-coef", type=float, default=0.0)
-    parser.add_argument("--max-turns", type=int, default=240)
+    parser.add_argument("--batch-size", type=int, default=32)
+    parser.add_argument("--replay-size", type=int, default=20_000)
+    parser.add_argument("--train-after", type=int, default=128)
+    parser.add_argument("--target-update", type=int, default=200)
+    parser.add_argument("--lr", type=float, default=1e-3)
+    parser.add_argument("--gamma", type=float, default=0.99)
+    parser.add_argument("--epsilon-start", type=float, default=1.0)
+    parser.add_argument("--epsilon-end", type=float, default=0.05)
     parser.add_argument("--deterministic", action="store_true")
-    parser.add_argument("--init-checkpoint")
-    parser.add_argument("--tag", default="ppo_long")
+    parser.add_argument("--tag", default="dqn_long")
     parser.add_argument("--progress", action="store_true")
     args = parser.parse_args()
 
@@ -297,6 +298,7 @@ def main() -> None:
     training_rows: list[dict[str, object]] = []
     diagnostic_rows: list[dict[str, object]] = []
     history_paths: dict[int, Path] = {}
+
     opponents = [
         DiagnosticOpponent("random", "random", args.diagnostic_games),
         DiagnosticOpponent("heuristic", "heuristic", args.diagnostic_games),
@@ -307,23 +309,21 @@ def main() -> None:
         checkpoint_path = Path("results/checkpoints") / f"{args.tag}_seed{seed}.pt"
         history_csv = Path("results/history") / f"{args.tag}_seed{seed}_history.csv"
         history_html = Path("results/history") / f"{args.tag}_seed{seed}_history.html"
-        print(f"Training PPO seed={seed} episodes={args.episodes}", flush=True)
+        print(f"Training DQN seed={seed} episodes={args.episodes}", flush=True)
         start = perf_counter()
         model, history, train_metrics = train(
             episodes=args.episodes,
             seed=seed,
             stochastic=stochastic,
             lr=args.lr,
+            gamma=args.gamma,
             batch_size=args.batch_size,
-            rollout_episodes=args.rollout_episodes,
-            update_epochs=args.update_epochs,
-            clip_ratio=args.clip_ratio,
-            value_coef=args.value_coef,
-            entropy_coef=args.entropy_coef,
-            max_turns=args.max_turns,
+            replay_size=args.replay_size,
+            train_after=args.train_after,
+            target_update=args.target_update,
+            epsilon_start=args.epsilon_start,
+            epsilon_end=args.epsilon_end,
             device=device,
-            init_checkpoint=args.init_checkpoint,
-            reference_kl_coef=args.reference_kl_coef,
         )
         elapsed = perf_counter() - start
         metadata = {
@@ -331,15 +331,13 @@ def main() -> None:
             "stochastic": stochastic,
             "seed": seed,
             "episodes": args.episodes,
-            "init_checkpoint": args.init_checkpoint,
-            "reference_kl_coef": args.reference_kl_coef,
-            "note": "Multi-seed PPO actor-critic baseline with no hand-written tactical rules.",
+            "note": "Multi-seed pure DQN baseline with no hand-written tactical rules.",
         }
         save_checkpoint(str(checkpoint_path), model.cpu(), metadata)
         save_history_csv(str(history_csv), history)
         save_history_html(str(history_html), history)
         history_paths[seed] = history_csv
-        final_reward = float(train_metrics["final_rolling_x_reward_50"])
+        final_reward = float(history[-1]["rolling_x_reward_50"]) if history else 0.0
         training_rows.append(
             {
                 "seed": seed,
@@ -351,6 +349,7 @@ def main() -> None:
                 "train_o_win_rate": train_metrics["o_win_rate"],
                 "train_draw_rate": train_metrics["draw_rate"],
                 "train_avg_turns": train_metrics["avg_turns"],
+                "train_avg_loss": train_metrics["avg_loss"],
                 "final_rolling_x_reward_50": final_reward,
                 "elapsed_seconds": elapsed,
             }
@@ -392,7 +391,7 @@ def main() -> None:
     print()
     for row in diagnostic_summary:
         print(
-            f"PPO vs {row['opponent']}: mean_win={float(row['mean_win_rate']):.3f}, "
+            f"DQN vs {row['opponent']}: mean_win={float(row['mean_win_rate']):.3f}, "
             f"mean_reward={float(row['mean_reward']):.3f}, games={row['games_total']}"
         )
 

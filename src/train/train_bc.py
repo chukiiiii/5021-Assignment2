@@ -13,7 +13,7 @@ import torch.nn.functional as F
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
-from ppo_model import PPOActorCritic, save_checkpoint
+from models.ppo_model import PPOActorCritic, save_checkpoint
 
 
 def load_dataset(path: str) -> dict[str, object]:
