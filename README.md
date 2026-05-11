@@ -46,6 +46,7 @@ The best-performing approach uses a three-stage pipeline: expert data generation
 
 Heuristic self-play (400 games) + MCTS vs Heuristic (80 games), producing 5685 state-action pairs.
 
+### Run Tests
 ```bash
 python generate_expert_data.py \
   --heuristic-games 400 --mcts-games 80 \
@@ -81,6 +82,7 @@ python train_ppo_multiseed.py \
 
 Evaluate the fine-tuned checkpoints against baseline opponents.
 
+### Evaluate Agents
 ```bash
 # vs random
 python evaluate_agents.py \

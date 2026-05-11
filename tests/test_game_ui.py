@@ -1,7 +1,7 @@
 import unittest
 
-from game_ui import GameSession
-from super_tictactoe import O, X
+from env.game_ui import GameSession
+from env.super_tictactoe import O, X
 
 
 class GameUITests(unittest.TestCase):

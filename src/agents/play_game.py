@@ -3,10 +3,15 @@
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
+import sys
 
-from agents import action_label, make_agent
-from match import play_game
-from super_tictactoe import SuperTicTacToeEnv, player_name
+if __package__ in {None, ""}:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from agents.agents import action_label, make_agent
+from env.match import play_game
+from env.super_tictactoe import SuperTicTacToeEnv, player_name
 
 
 def print_action_map() -> None:

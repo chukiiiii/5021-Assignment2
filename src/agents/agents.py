@@ -7,7 +7,7 @@ import math
 import random
 from typing import Protocol
 
-from super_tictactoe import (
+from env.super_tictactoe import (
     CELL_TO_ACTION,
     EMPTY,
     O,
@@ -18,7 +18,7 @@ from super_tictactoe import (
     adjacent_cells,
     is_valid_cell,
 )
-from train_q_learning import state_key
+from train.train_q_learning import state_key
 
 
 class Agent(Protocol):
@@ -80,7 +80,7 @@ class DQNAgent:
         seed: int | None = None,
         name: str | None = None,
     ) -> None:
-        from dqn_model import action_mask, load_checkpoint, masked_argmax, state_tensor
+        from models.dqn_model import action_mask, load_checkpoint, masked_argmax, state_tensor
 
         self.path = path
         self.name = name or f"dqn:{path}"
@@ -110,7 +110,7 @@ class PPOAgent:
         seed: int | None = None,
         name: str | None = None,
     ) -> None:
-        from ppo_model import load_checkpoint, select_greedy_action
+        from models.ppo_model import load_checkpoint, select_greedy_action
 
         self.path = path
         self.name = name or f"ppo:{path}"

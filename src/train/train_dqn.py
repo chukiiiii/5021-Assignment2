@@ -19,8 +19,8 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-from dqn_model import DQN, action_mask, masked_argmax, save_checkpoint, state_tensor
-from super_tictactoe import SuperTicTacToeEnv, player_name
+from models.dqn_model import DQN, action_mask, masked_argmax, save_checkpoint, state_tensor
+from env.super_tictactoe import SuperTicTacToeEnv, player_name
 
 
 class Transition(NamedTuple):

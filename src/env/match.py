@@ -6,8 +6,8 @@ from dataclasses import asdict, dataclass
 from statistics import mean
 from typing import Callable
 
-from agents import Agent
-from super_tictactoe import O, X, MoveInfo, SuperTicTacToeEnv, player_name
+from agents.agents import Agent
+from env.super_tictactoe import O, X, MoveInfo, SuperTicTacToeEnv, player_name
 
 
 @dataclass(frozen=True)

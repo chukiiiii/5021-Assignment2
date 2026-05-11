@@ -1,6 +1,6 @@
 import unittest
 
-from super_tictactoe import (
+from env.super_tictactoe import (
     O,
     VALID_CELLS,
     WINNING_LINES,

@@ -10,9 +10,9 @@ from statistics import mean
 
 import torch
 
-from agents import Agent, make_agent
-from dqn_model import action_mask, state_tensor
-from super_tictactoe import SuperTicTacToeEnv, player_name
+from agents.agents import Agent, make_agent
+from models.dqn_model import action_mask, state_tensor
+from env.super_tictactoe import SuperTicTacToeEnv, player_name
 
 
 @dataclass(frozen=True)

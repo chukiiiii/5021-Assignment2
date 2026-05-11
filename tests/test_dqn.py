@@ -2,9 +2,9 @@ import os
 import tempfile
 import unittest
 
-from agents import make_agent
-from dqn_model import DQN, action_mask, save_checkpoint, state_tensor
-from super_tictactoe import SuperTicTacToeEnv
+from agents.agents import make_agent
+from models.dqn_model import DQN, action_mask, save_checkpoint, state_tensor
+from env.super_tictactoe import SuperTicTacToeEnv
 
 
 class DQNTests(unittest.TestCase):

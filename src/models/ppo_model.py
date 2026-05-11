@@ -9,8 +9,8 @@ import torch
 from torch import nn
 from torch.distributions import Categorical
 
-from dqn_model import action_mask, state_tensor
-from super_tictactoe import BOARD_SIZE, VALID_CELLS, SuperTicTacToeEnv
+from models.dqn_model import action_mask, state_tensor
+from env.super_tictactoe import BOARD_SIZE, VALID_CELLS, SuperTicTacToeEnv
 
 
 class PPOActorCritic(nn.Module):

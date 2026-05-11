@@ -9,8 +9,8 @@ import threading
 from typing import Any
 from urllib.parse import urlparse
 
-from agents import Agent, make_agent
-from super_tictactoe import (
+from agents.agents import Agent, make_agent
+from env.super_tictactoe import (
     CELL_TO_ACTION,
     EMPTY,
     O,
