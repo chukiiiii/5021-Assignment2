@@ -1,5 +1,7 @@
 # Python
 __pycache__/
+logs/
+*.pyc
 *.py[cod]
 *$py.class
 *.so

@@ -1,102 +1,135 @@
-# Super Tic-Tac-Toe Reinforcement Learning Project
+# Super Tic-Tac-Toe — Assignment 2
 
-## 📁 Project Structure
+## Group Member: YU XIAOYA, CAI XINYI
 
-```
-Assignment2/
-├── src/                    # Source code
-│   ├── env/               # Game environment & UI
-│   │   ├── super_tictactoe.py   # Core game logic
-│   │   ├── match.py             # Game runner & statistics
-│   │   └── game_ui.py           # Browser-based UI
-│   ├── agents/            # Agent implementations
-│   │   ├── agents.py            # Random, heuristic, MCTS, Q-table, DQN, human agents
-│   │   └── play_game.py         # Terminal replay & human-vs-agent
-│   └── models/            # Deep learning models
-│       ├── dqn_model.py         # DQN architecture
-│       └── ppo_model.py         # PPO actor-critic model
-├── train/                 # Training scripts
-│   ├── train_q_learning.py      # Tabular Q-learning
-│   ├── train_dqn.py             # DQN training
-│   ├── train_dqn_multiseed.py   # Multi-seed DQN
-│   ├── train_ppo.py             # PPO training
-│   ├── train_ppo_multiseed.py   # Multi-seed PPO
-│   ├── train_bc.py              # Behavior cloning
-│   └── generate_expert_data.py  # Expert data generation
-├── eval/                  # Evaluation & experiments
-│   ├── evaluate_agents.py       # Agent vs-agent evaluation
-│   └── run_experiments.py       # Experiment orchestration
-├── tests/                 # Unit tests
-│   ├── test_super_tictactoe.py
-│   ├── test_match.py
-│   ├── test_game_ui.py
-│   ├── test_dqn.py
-│   └── test_ppo.py
-├── docs/                  # Documentation
-│   ├── README.md                # Main project documentation
-│   ├── HANDOFF.md               # Handoff notes
-│   ├── EXPERIMENT_PLAN.md       # Experiment roadmap
-│   └── report.md                # Assignment report
-├── results/               # Experimental results
-│   ├── checkpoints/     # Trained model checkpoints
-│   ├── evaluations/     # Evaluation reports (JSON/HTML)
-│   ├── history/         # Training history (CSV/HTML)
-│   └── summary/         # Summary reports
-└── utils/                 # Utility scripts (future use)
+Reinforcement learning agents for a stochastic variant of tic-tac-toe on a triangular board of 96 cells.
+
+For full experimental details, results, and analysis, see **[report.md](report.md)**.
+
+---
+
+## Code Structure
+
+```text
+super_tictactoe.py           Game rules and environment.
+agents.py                    Built-in agents: random, heuristic, MCTS, human.
+match.py                     Game runner and match statistics.
+evaluate_agents.py           Agent-vs-agent evaluation (JSON/CSV/HTML reports).
+game_ui.py                   Local browser UI for human play.
+run_experiments.py           Multi-seed experiment summary runner.
+
+dqn_model.py                 DQN network and tensor helpers.
+train_dqn.py                 DQN training script.
+train_dqn_multiseed.py       Multi-seed DQN training with diagnostics.
+
+ppo_model.py                 PPO actor-critic network and checkpoint helpers.
+train_ppo.py                 PPO training script (supports --init-checkpoint).
+train_ppo_multiseed.py       Multi-seed PPO training with diagnostics.
+
+generate_expert_data.py      Heuristic/MCTS expert trajectory generator.
+train_bc.py                  Behavior cloning (SFT) training script.
+
+results/checkpoints/         Trained model checkpoints.
+results/expert/              Expert datasets for behavior cloning.
+results/history/             Training reward history CSV/HTML.
+results/evaluations/         Match evaluation reports.
+results/summary/             Multi-seed experiment summaries.
 ```
 
-## 🚀 Quick Start
+---
+
+## Core Method: SFT + Conservative PPO Fine-Tuning
+
+The best-performing approach uses a three-stage pipeline: expert data generation → behavior cloning (SFT) → conservative PPO fine-tuning.
+
+### 1. Generate Expert Data
+
+Heuristic self-play (400 games) + MCTS vs Heuristic (80 games), producing 5685 state-action pairs.
 
 ### Run Tests
 ```bash
-python3 -m pytest tests/ -v
-# or
-python3 -m unittest discover -s tests -v
+python generate_expert_data.py \
+  --heuristic-games 400 --mcts-games 80 \
+  --output results/expert/mixed_expert_large.pt \
+  --summary results/expert/mixed_expert_large_summary.csv
 ```
 
-### Train Agents
+### 2. Behavior Cloning (Supervised Fine-Tuning)
+
+Train the PPOActorCritic network via masked cross-entropy to predict expert actions. Achieves 64.6% validation top-1 accuracy with 100% legal action compliance.
+
 ```bash
-# Q-Learning
-python3 train/train_q_learning.py
-
-# DQN
-python3 train/train_dqn.py --episodes 100
-
-# PPO
-python3 train/train_ppo.py --episodes 100
-
-# Behavior Cloning
-python3 train/generate_expert_data.py
-python3 train/train_bc.py
+python train_bc.py \
+  --data results/expert/mixed_expert_large.pt \
+  --epochs 12 --batch-size 128 --lr 1e-3 \
+  --output results/checkpoints/bc_mixed_large.pt \
+  --history-csv results/history/bc_mixed_large_history.csv \
+  --history-html results/history/bc_mixed_large_history.html
 ```
+
+### 3. Conservative PPO Fine-Tuning
+
+Load the BC-pretrained checkpoint and refine via PPO with a conservative learning rate. Runs 3 seeds (901, 902, 903) for 120 episodes each.
+
+```bash
+python train_ppo_multiseed.py \
+  --seeds 901 902 903 --episodes 120 \
+  --init-checkpoint results/checkpoints/bc_mixed_large.pt \
+  --tag sft_ppo_conservative --progress
+```
+
+### 4. Evaluate
+
+Evaluate the fine-tuned checkpoints against baseline opponents.
 
 ### Evaluate Agents
 ```bash
-python3 eval/evaluate_agents.py --agent-a dqn:results/checkpoints/dqn.pt --agent-b random --games 20
+# vs random
+python evaluate_agents.py \
+  --agent-a ppo:results/checkpoints/sft_ppo_conservative_seed901.pt \
+  --agent-b random --games 30 \
+  --html-output results/evaluations/eval_sft_ppo_conservative_random.html
+
+# vs heuristic
+python evaluate_agents.py \
+  --agent-a ppo:results/checkpoints/sft_ppo_conservative_seed901.pt \
+  --agent-b heuristic --games 30 \
+  --html-output results/evaluations/eval_sft_ppo_conservative_heuristic.html
+
+# vs MCTS
+python evaluate_agents.py \
+  --agent-a ppo:results/checkpoints/sft_ppo_conservative_seed901.pt \
+  --agent-b mcts:20:6 --games 12 \
+  --html-output results/evaluations/eval_sft_ppo_conservative_mcts.html
 ```
 
-### Run Experiments
+---
+
+## Other Commands
+
+### Run tests
+
 ```bash
-python3 eval/run_experiments.py --preset full --seeds 1 2 3
+python -m unittest -v
 ```
 
-### Play Game
+### Start browser UI
+
 ```bash
-# Terminal mode
-python3 src/agents/play_game.py
-
-# Browser UI
-python3 src/env/game_ui.py --host 127.0.0.1 --port 8765
+python game_ui.py --host 127.0.0.1 --port 8765
 ```
 
-## 📋 Common Commands
+### Train baselines
 
-See [docs/README.md](docs/README.md) for detailed command examples.
+```bash
+# DQN multi-seed
+python train_dqn_multiseed.py --seeds 201 202 203 --episodes 120 --tag dqn_long --progress
 
-## 📊 Results
+# PPO from scratch multi-seed
+python train_ppo_multiseed.py --seeds 501 502 503 --episodes 120 --tag ppo_long --progress
+```
 
-All experimental results are stored in the `results/` directory:
-- `checkpoints/`: Model weights and Q-tables
-- `evaluations/`: Agent performance metrics
-- `history/`: Training curves and logs
-- `summary/`: Aggregated experiment summaries
+### Run full experiment summary
+```bash
+python run_experiments.py --preset full --seeds 1 2 3 --games 10 --mcts-games 5 --progress
+```
